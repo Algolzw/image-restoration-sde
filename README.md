@@ -1,7 +1,7 @@
 
 ## Image Restoration with Mean-Reverting Stochastic Differential Equations
 
-This is the implementation of paper 'Image Restoration with Mean-Reverting Stochastic Differential Equations'.
+This is the implementation of paper "Image Restoration with Mean-Reverting Stochastic Differential Equations".
 
 ![IR-SDE](figs/overview.png)
 

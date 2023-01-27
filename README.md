@@ -3,7 +3,7 @@
 
 This is the implementation of paper 'Image Restoration with Mean-Reverting Stochastic Differential Equations'.
 
-![IR-SDE](figs/overview.pdf)
+![IR-SDE](figs/overview.png)
 
 
 ## Dependenices

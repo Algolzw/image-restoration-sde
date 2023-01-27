@@ -68,6 +68,8 @@ cd codes/config/deraining
 python test.py -opt=options/derain/test/test_sde_derain.yml
 ```
 
+### Some Results
+![IR-SDE](figs/results.png)
 
 ---
 

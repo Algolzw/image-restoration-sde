@@ -1,9 +1,9 @@
 
-## Image Restoration with Mean-Reverting Stochastic Differential Equations
+## Image Restoration with Mean-Reverting Stochastic Differential Equations <br><sub>Official PyTorch Implementation of IR-SDE. [[Paper]]()[[Project]](https://algolzw.github.io/ir-sde/index.html)</sub>
 
-This is the implementation of paper "Image Restoration with Mean-Reverting Stochastic Differential Equations".
 
 ![IR-SDE](figs/overview.png)
+You can find more details and results from our [Project page](https://algolzw.github.io/ir-sde/index.html).
 
 
 ## Dependenices
@@ -22,7 +22,7 @@ Here we provide an example for **image deraining** task, but can be changed to a
 
 ### Dataset Preparation
 
-We employ Rain100H datasets for training (totally 1,800 images) and test (100 images). 
+We employ Rain100H datasets for training (totally 1,800 images) and testing (100 images). 
 
 Download [training](http://www.icst.pku.edu.cn/struct/att/RainTrainH.zip) and [testing](http://www.icst.pku.edu.cn/struct/att/Rain100H.zip) datasets and process it in a way such that rain images and no-rain image are in separately directories, as
 
@@ -74,4 +74,4 @@ python test.py -opt=options/derain/test/test_sde_derain.yml
 ---
 
 #### --- Thanks for your interest! --- ####
-![visitors](https://visitor-badge.glitch.me/badge?page_id=Algolzw/image-restoration-sde) 
+![visitors](https://visitor-badge.glitch.me/badge?page_id=Algolzw/image-restoration-sde)

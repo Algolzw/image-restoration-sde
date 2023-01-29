@@ -81,9 +81,9 @@ class IRSDE(SDE):
     '''
     Let timestep t start from 1 to T, state t=0 is never used
     '''
-    def __init__(self, max_sigma, T, schedule='cosine', eps=0.01,  device=None):
+    def __init__(self, max_sigma, T=100, schedule='cosine', eps=0.01,  device=None):
         super().__init__(T, device)
-        self.max_sigma = max_sigma / 255 if max_sigma > 1 else max_sigma
+        self.max_sigma = max_sigma / 255 if max_sigma >= 1 else max_sigma
         self._initialize(self.max_sigma, T, schedule, eps)
 
     def _initialize(self, max_sigma, T, schedule, eps=0.01):

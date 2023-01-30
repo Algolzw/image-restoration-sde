@@ -29,7 +29,7 @@ We retrained the deraining model from scratch on 4 Nvidia TITAN XP GPUs and find
 | MPRNet | 30.41 | 0.8906 | 0.158 | 61.59 |
 | PReNet | 29.46 | 0.8990 | 0.128 | 52.67 |
 
-Note that **we didn't tune any parameters**, the last saved checkpoint was used to evaluation.
+Note that **we didn't tune any parameter**, the last saved checkpoint was used to evaluation.
 
 The pretrained model is provided [here](https://drive.google.com/file/d/1o6ELATcKOw96Uno8rJVB20vcLRWWBnu2/view?usp=share_link), and the performances of other SOTAs can be find in [here](https://paperswithcode.com/sota/single-image-deraining-on-rain100h).
 

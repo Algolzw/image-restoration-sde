@@ -1,5 +1,5 @@
 
-## Image Restoration with Mean-Reverting Stochastic Differential Equations <br><sub>Official PyTorch Implementation of IR-SDE [[Paper]]()[[Project]](https://algolzw.github.io/ir-sde/index.html)</sub>
+## Image Restoration with Mean-Reverting Stochastic Differential Equations <br><sub>Official PyTorch Implementation of IR-SDE [[Paper]](https://arxiv.org/abs/2301.11699)[[Project]](https://algolzw.github.io/ir-sde/index.html)</sub>
 
 
 ![IR-SDE](figs/overview.png)
@@ -100,14 +100,14 @@ python interpolation.py -s source_image_path -t target_image_path --save save_di
 If our code helps your research or work, please consider citing our paper.
 The following is a BibTeX reference:
 
-<!--```
-@article{luo2022deep,
-  title={Deep Constrained Least Squares for Blind Image Super-Resolution},
-  author={Luo, Ziwei and Huang, Haibin and Yu, Lei and Li, Youwei and Fan, Haoqiang and Liu, Shuaicheng},
-  journal={arXiv preprint arXiv:2202.07508},
-  year={2022}
+```
+@article{luo2023image,
+  title={Image Restoration with Mean-Reverting Stochastic Differential Equations},
+  author={Luo, Ziwei and Gustafsson, Fredrik K. and Zhao, Zheng and Sjölund, Jens and Schön, Thomas B.},
+  journal={arXiv preprint arXiv:2301.11699},
+  year={2023}
 }
-```-->
+```
 
 ---
 
@@ -115,4 +115,4 @@ The following is a BibTeX reference:
 E-mail: ziwei.luo@it.uu.se
 
 #### --- Thanks for your interest! --- ####
-<!--![visitors](https://visitor-badge.glitch.me/badge?page_id=Algolzw/image-restoration-sde)-->
+![visitors](https://visitor-badge.glitch.me/badge?page_id=Algolzw/image-restoration-sde)

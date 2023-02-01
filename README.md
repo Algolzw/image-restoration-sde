@@ -103,7 +103,7 @@ The following is a BibTeX reference:
 ```
 @article{luo2023image,
   title={Image Restoration with Mean-Reverting Stochastic Differential Equations},
-  author={Luo, Ziwei and Gustafsson, Fredrik K. and Zhao, Zheng and Sjölund, Jens and Schön, Thomas B.},
+  author={Luo, Ziwei and Gustafsson, Fredrik K and Zhao, Zheng and Sj{\"o}lund, Jens and Sch{\"o}n, Thomas B},
   journal={arXiv preprint arXiv:2301.11699},
   year={2023}
 }

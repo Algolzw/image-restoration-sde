@@ -5,6 +5,8 @@
 ![IR-SDE](figs/overview.png)
 You can find more details and results from our [Project page](https://algolzw.github.io/ir-sde/index.html).
 
+### Updates
+[**2023.02.02**] We provide a [Gradio](https://gradio.app/) app file for the case that you want to [test your own images](https://github.com/Algolzw/image-restoration-sde#Gradio).
 
 ## Dependenices
 
@@ -80,6 +82,9 @@ To evalute our method, please modify the benchmark path and model path and run
 cd codes/config/deraining
 python test.py -opt=options/derain/test/test_sde_derain.yml
 ```
+
+### Gradio
+Here we provide an [app.py](https://github.com/Algolzw/image-restoration-sde/blob/main/codes/config/deraining/app.py) file for testing your own images. Before that, you need to download the pretrained weights and modify the model path in `test_sde_derain.yml`. Then by simply running `python app.py`, you can open `http://localhost:7860` to test the model. (We also provide 3 raining images from Rain100H in `images` dir).
 
 ### Some Results
 ![IR-SDE](figs/results.png)

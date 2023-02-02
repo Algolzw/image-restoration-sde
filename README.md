@@ -20,7 +20,7 @@ You can find more details and results from our [Project page](https://algolzw.gi
 
 ## How to use our Code?
 
-Here we provide an example for **image deraining** task, but can be changed to any problem with replacing the dataset. 
+Here we provide an example for **image deraining** task, but can be changed to any problem with replacing the dataset. And the code for Denoising-SDE/ODE will be released later!
 
 We retrained the deraining model from scratch on 4 Nvidia TITAN XP GPUs and find that it achieves a **new SOTA even in terms of PSNR** on Rain100H:
 

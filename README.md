@@ -26,8 +26,8 @@ We retrained the deraining model from scratch on 4 Nvidia TITAN XP GPUs and find
 
 | Method |  PSNR   | SSIM  | LPIPS   | FID  |
 | :--- |  :----:  | :----:  | :----:  | :----:  |
-| **IR-SDE** | **41.65**  | **0.9041** | **0.047** | **18.64** |
-| Restormer | 41.46  | 0.904 | - | - |
+| **IR-SDE** | **31.65**  | **0.9041** | **0.047** | **18.64** |
+| Restormer | 31.46  | 0.904 | - | - |
 | MPRNet | 30.41 | 0.8906 | 0.158 | 61.59 |
 | PReNet | 29.46 | 0.8990 | 0.128 | 52.67 |
 

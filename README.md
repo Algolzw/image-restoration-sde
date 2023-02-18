@@ -76,7 +76,7 @@ Then the models and training logs will save in `log/derain_sde/`.
 You can print your log at time by running `tail -f log/derain_sde/train_derain_sde_***.log -n 100`.
 
 ### Evaluation
-To evalute our method, please modify the benchmark path and model path and run
+To evaluate our method, please modify the benchmark path and model path and run
 
 ```bash
 cd codes/config/deraining

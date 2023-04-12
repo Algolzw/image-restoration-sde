@@ -114,7 +114,7 @@ The following are BibTeX references:
 }
 
 @inproceedings{luo2023refusion,
-  title={Refusion: Enabling Large-Size Realistic Image Restoration with \\ Latent-Space Diffusion Models},
+  title={Refusion: Enabling Large-Size Realistic Image Restoration with Latent-Space Diffusion Models},
   author={Luo, Ziwei and Gustafsson, Fredrik K and Zhao, Zheng and Sj{\"o}lund, Jens and Sch{\"o}n, Thomas B},
   booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops},
   year={2023}

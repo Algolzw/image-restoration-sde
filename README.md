@@ -103,13 +103,20 @@ python interpolation.py -s source_image_path -t target_image_path --save save_di
 
 ## Citations
 If our code helps your research or work, please consider citing our paper.
-The following is a BibTeX reference:
+The following are BibTeX references:
 
 ```
 @article{luo2023image,
   title={Image Restoration with Mean-Reverting Stochastic Differential Equations},
   author={Luo, Ziwei and Gustafsson, Fredrik K and Zhao, Zheng and Sj{\"o}lund, Jens and Sch{\"o}n, Thomas B},
   journal={arXiv preprint arXiv:2301.11699},
+  year={2023}
+}
+
+@inproceedings{luo2023refusion,
+  title={Refusion: Enabling Large-Size Realistic Image Restoration with \\ Latent-Space Diffusion Models},
+  author={Luo, Ziwei and Gustafsson, Fredrik K and Zhao, Zheng and Sj{\"o}lund, Jens and Sch{\"o}n, Thomas B},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops},
   year={2023}
 }
 ```

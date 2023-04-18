@@ -100,10 +100,12 @@ Here we provide an [app.py](https://github.com/Algolzw/image-restoration-sde/blo
 
 ### Some Results
 ![IR-SDE](figs/results.png)
-<center>HR Non-Homogeneous Dehazing</center>
+<div align='center'>HR Non-Homogeneous Dehazing</div>
+
 ![Refusion](figs/results_dehazing.png)
 
-<center>Image Shadow Removal</center>
+<div align='center'>Image Shadow Removal</div>
+
 ![Refusion](figs/results_deshadow.png)
 
 ### Interpolation

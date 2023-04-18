@@ -1,12 +1,24 @@
 
-## Image Restoration with Mean-Reverting Stochastic Differential Equations <br><sub>Official PyTorch Implementation of IR-SDE [[Paper]](https://arxiv.org/abs/2301.11699)[[Project]](https://algolzw.github.io/ir-sde/index.html)</sub>
+## Image Restoration SDE <br><sub>Official PyTorch Implementations of [[IR-SDE]](https://arxiv.org/abs/2301.11699) and [[Refusion]](https://arxiv.org/abs/2304.08291). </sub>
 
+[Ziwei Luo](https://algolzw.github.io/), 
+[Fredrik K. Gustafsson](https://www.fregu856.com/), 
+[Zheng Zhao](https://zz.zabemon.com/), 
+[Jens Sjölund](https://jsjol.github.io/), 
+[Thomas B. Schön](https://user.it.uu.se/~thosc112/index.html)</br>
+Department of Information Technology, Uppsala University</br>
 
+**[Image Restoration with Mean-Reverting Stochastic Differential Equations](https://arxiv.org/abs/2301.11699)**</br>
 ![IR-SDE](figs/overview.png)
-You can find more details and results from our [Project page](https://algolzw.github.io/ir-sde/index.html).
+
+**[Refusion: Enabling Large-Size Realistic Image Restoration with Latent-Space Diffusion Models](https://arxiv.org/abs/2304.08291)**</br>
+
+![Refusion](figs/refusion.png)
+Both methods can be used for synthetic and real-world dataset. You can find more details and results from this **[Project page](https://algolzw.github.io/ir-sde/index.html)**.
 
 ### Updates
-[**2023.02.02**] We provide a [Gradio](https://gradio.app/) app file for the case that you want to [test your own images](https://github.com/Algolzw/image-restoration-sde#Gradio).
+[**2023.04.17**] 🎉🎉🎉 Our method **Refusion** won the 2nd place in NTIRE 2023 Image Shadow Removal Challenge [[Paper]](https://arxiv.org/abs/2304.08291).<br>
+<!--[**2023.02.02**] We provide a [Gradio](https://gradio.app/) app file for the case that you want to [test your own images](https://github.com/Algolzw/image-restoration-sde#Gradio).-->
 
 ## Dependenices
 
@@ -88,6 +100,11 @@ Here we provide an [app.py](https://github.com/Algolzw/image-restoration-sde/blo
 
 ### Some Results
 ![IR-SDE](figs/results.png)
+<center>HR Non-Homogeneous Dehazing</center>
+![Refusion](figs/results_dehazing.png)
+
+<center>Image Shadow Removal</center>
+![Refusion](figs/results_deshadow.png)
 
 ### Interpolation
 We also provide a interpolation demo to perform interpolation between two images in `codes/demos/interpolation.py`, the usage is:

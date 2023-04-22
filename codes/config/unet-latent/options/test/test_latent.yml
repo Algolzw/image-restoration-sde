@@ -1,0 +1,35 @@
+name: latent_dehaze
+suffix: ~  # add suffix to saved images
+model: latent
+distortion: dehazing
+gpu_ids: [0]
+
+degradation:
+  # for denoising
+  sigma: 25
+  noise_type: G # Gaussian noise: G
+
+  # for super-resolution
+  scale: 4
+
+datasets:
+  test1:
+    name: Dehazing
+    mode: LQGT
+    dataroot_GT: /home/x_ziwlu/datasets/ntire2023/dehazing/val/GT
+    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/dehazing/val/LQ
+
+#### network structures
+network_G:
+  which_model_G: UNet
+  setting:
+    in_ch: 3
+    out_ch: 3
+    ch: 8
+    ch_mult: [4, 8, 8, 16]
+    embed_dim: 8
+
+#### path
+path:
+  pretrain_model_G: pretrained_models/latent_dehaze.pth
+

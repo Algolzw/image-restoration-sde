@@ -1,0 +1,39 @@
+name: refusion
+suffix: ~  # add suffix to saved images
+model: denoising
+distortion: derain
+gpu_ids: [0]
+
+sde:
+  max_sigma: 50
+  T: 100
+  schedule: cosine # linear, cosine
+  eps: 0.005
+  
+degradation:
+  # for denoising
+  sigma: 25
+  noise_type: G # Gaussian noise: G
+
+  # for super-resolution
+  scale: 4
+
+datasets:
+  test1:
+    name: Rain100H
+    mode: LQGT
+    dataroot_GT: datasets/rain/testH/GT
+    dataroot_LQ: datasets/rain/testH/LQ
+
+#### network structures
+network_G:
+  which_model_G: ConditionalNAFNet
+  setting:
+    width: 64
+    enc_blk_nums: [1, 1, 1, 28]
+    middle_blk_num: 1
+    dec_blk_nums: [1, 1, 1, 1]
+
+#### path
+path:
+  pretrain_model_G: pretrained/refusion.pth

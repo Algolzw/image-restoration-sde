@@ -26,20 +26,13 @@ def parse(opt_path, is_train=True):
     opt["is_train"] = is_train
 
     scale = 1
-    if opt['distortion'] == 'sr':
-        scale = opt['degradation']['scale']
-
-        ##### sr network ####
-        opt["network_G"]["setting"]["upscale"] = scale
-        # opt["network_G"]["setting"]["in_nc"] *= scale**2
 
     # datasets
     for phase, dataset in opt["datasets"].items():
         phase = phase.split("_")[0]
-        print(dataset)
         dataset["phase"] = phase
         dataset["scale"] = scale
-        
+
         is_lmdb = False
         if dataset.get("dataroot_GT", None) is not None:
             dataset["dataroot_GT"] = osp.expanduser(dataset["dataroot_GT"])

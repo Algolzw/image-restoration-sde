@@ -1,0 +1,85 @@
+#### general settings
+name: refusion
+use_tb_logger: true
+model: denoising
+distortion: derain
+gpu_ids: [0]
+
+sde:
+  max_sigma: 50
+  T: 100
+  schedule: cosine # linear, cosine
+  eps: 0.005
+
+degradation: # for some synthetic dataset that only have GTs
+  # for denoising
+  sigma: 25
+  noise_type: G # Gaussian noise: G
+
+  # for super-resolution
+  scale: 4
+  
+#### datasets
+datasets:
+  train:
+    optimizer: Lion # Adam, AdamW, Lion
+    name: Train_Dataset
+    mode: LQGT
+    dataroot_GT: datasets/rain/trainH/GT
+    dataroot_LQ: datasets/rain/trainH/LQ
+
+    use_shuffle: true
+    n_workers: 4  # per GPU
+    batch_size: 4
+    GT_size: 128
+    LR_size: 128
+    use_flip: true
+    use_rot: true
+    color: RGB
+  val:
+    name: Val_Dataset
+    mode: LQGT
+    dataroot_GT: datasets/rain/testH/GT
+    dataroot_LQ: datasets/rain/testH/LQ
+
+
+#### network structures
+network_G:
+  which_model_G: ConditionalNAFNet
+  setting:
+    width: 64
+    enc_blk_nums: [1, 1, 1, 28]
+    middle_blk_num: 1
+    dec_blk_nums: [1, 1, 1, 1]
+
+#### path
+path:
+  pretrain_model_G: ~
+  strict_load: true
+  resume_state: ~
+
+#### training settings: learning rate scheme, loss
+train:
+  optimizer: Lion # Adam, AdamW, Lion
+  lr_G: !!float 4e-5
+  lr_scheme: TrueCosineAnnealingLR
+  beta1: 0.9
+  beta2: 0.99
+  niter: 700000
+  warmup_iter: -1  # no warm up
+  lr_steps: [200000, 400000, 600000]
+  lr_gamma: 0.5
+  eta_min: !!float 1e-7
+
+  # criterion
+  is_weighted: False
+  loss_type: l1
+  weight: 1.0
+
+  manual_seed: 0
+  val_freq: !!float 5e3
+
+#### logger
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3

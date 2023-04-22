@@ -1,0 +1,39 @@
+name: refusion
+suffix: ~  # add suffix to saved images
+model: denoising
+gpu_ids: [0]
+
+sde:
+  max_sigma: 70
+  T: 1000
+
+degradation:
+  sigma: 15
+  noise_type: G # Gaussian noise: G
+
+datasets:
+  test1:
+    name: McMaster
+    mode: GT
+    dataroot_GT: /home/ziwlu/datasets/testsets/McMaster
+  test2:
+    name: Kodak24
+    mode: GT
+    dataroot_GT: /home/ziwlu/datasets/testsets/Kodak24
+  test3:
+    name: CBSD68
+    mode: GT
+    dataroot_GT: /home/ziwlu/datasets/testsets/CBSD68
+
+#### network structures
+network_G:
+  which_model_G: ConditionalNAFNet
+  setting:
+    width: 64
+    enc_blk_nums: [1, 1, 1, 28]
+    middle_blk_num: 1
+    dec_blk_nums: [1, 1, 1, 1]
+
+#### path
+path:
+  pretrain_model_G: pretrained/refusion.pth

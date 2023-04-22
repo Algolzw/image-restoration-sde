@@ -1,0 +1,39 @@
+name: ir-sde
+suffix: ~  # add suffix to saved images
+model: denoising
+gpu_ids: [0]
+
+sde:
+  max_sigma: 75
+  T: 100
+
+degradation:
+  sigma: 15
+  noise_type: G # Gaussian noise: G
+
+datasets:
+  test1:
+    name: McMaster
+    mode: GT
+    dataroot_GT: /home/ziwlu/datasets/testsets/McMaster
+  test2:
+    name: Kodak24
+    mode: GT
+    dataroot_GT: /home/ziwlu/datasets/testsets/Kodak24
+  test3:
+    name: CBSD68
+    mode: GT
+    dataroot_GT: /home/ziwlu/datasets/testsets/CBSD68
+
+#### network structures
+network_G:
+  which_model_G: ConditionalUNet
+  setting:
+    in_nc: 3
+    out_nc: 3
+    nf: 64
+    depth: 4
+
+#### path
+path:
+  pretrain_model_G: pretrained/ir-sde.pth

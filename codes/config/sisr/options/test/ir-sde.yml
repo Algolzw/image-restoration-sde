@@ -1,4 +1,4 @@
-name: derain_sde
+name: ir-sde
 suffix: ~  # add suffix to saved images
 model: denoising
 distortion: derain
@@ -20,7 +20,7 @@ degradation:
 
 datasets:
   test1:
-    name: Rain100H
+    name: Val_Dataset
     mode: LQGT
     dataroot_GT: datasets/rain/testH/GT
     dataroot_LQ: datasets/rain/testH/LQ
@@ -36,4 +36,4 @@ network_G:
 
 #### path
 path:
-  pretrain_model_G: pretrained/sde_rain100h.pth
+  pretrain_model_G: ~

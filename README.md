@@ -1,5 +1,5 @@
 
-## Image Restoration SDE <br><sub>Official PyTorch Implementations of [[IR-SDE]](https://arxiv.org/abs/2301.11699) and [[Refusion]](https://arxiv.org/abs/2304.08291). </sub>
+## Image Restoration SDE <br><sub>Official PyTorch Implementations of [[IR-SDE]](https://arxiv.org/abs/2301.11699)(ICML 2023) and [[Refusion]](https://arxiv.org/abs/2304.08291)(CVPRW 2023). </sub>
 
 [Ziwei Luo](https://algolzw.github.io/), 
 [Fredrik K. Gustafsson](https://www.fregu856.com/), 

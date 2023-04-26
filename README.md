@@ -18,7 +18,7 @@ Both methods can be used for synthetic and real-world dataset. You can find more
 
 ### Updates
 [**2023.04.25**] 🎉🎉🎉 **Our [IR-SDE](https://arxiv.org/abs/2301.11699) paper was accepted by ICML 2023** 🎉🎉🎉<br>
-[**2023.04.23**] We released the codes for various tasks (including *IR-SDE* and *Refusion*), and also released the U-Net based **Latent-Refusion** code.<br>
+[**2023.04.23**] We released the codes for various tasks (including *IR-SDE*, *Refusion*, and **Latent-Refusion**), and the pre-trained weights for Refusion is available at [here](https://drive.google.com/drive/folders/1T5_UL4BgOIftEEkAzoa-SYX49P7COVa6?usp=share_link).<br>
 [**2023.04.17**] 🎉🎉🎉 Our method **Refusion** won the 2nd place in NTIRE 2023 Image Shadow Removal Challenge [[Paper]](https://arxiv.org/abs/2304.08291).<br>
 <!--[**2023.02.02**] We provide a [Gradio](https://gradio.app/) app file for the case that you want to [test your own images](https://github.com/Algolzw/image-restoration-sde#Gradio).-->
 

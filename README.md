@@ -47,7 +47,7 @@ We retrained the deraining model from scratch on 4 Nvidia TITAN XP GPUs and find
 
 Note that **we didn't tune any parameter**, the last saved checkpoint was used to evaluation.
 
-The pretrained model is provided [here](https://drive.google.com/file/d/1o6ELATcKOw96Uno8rJVB20vcLRWWBnu2/view?usp=share_link), and the performances of other SOTAs can be find in [here](https://paperswithcode.com/sota/single-image-deraining-on-rain100h).
+The pretrained models for all tasks are provided [here](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link), and the performances of other SOTAs can be find in [here](https://paperswithcode.com/sota/single-image-deraining-on-rain100h).
 
 ### Dataset Preparation
 

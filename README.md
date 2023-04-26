@@ -97,6 +97,8 @@ cd codes/config/deraining
 python test.py -opt=options/derain/test/test_sde_derain.yml
 ```
 
+We also provide the results for different tasks [here](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link).
+
 ### Gradio
 Here we provide an [app.py](https://github.com/Algolzw/image-restoration-sde/blob/main/codes/config/deraining/app.py) file for testing your own images. Before that, you need to download the pretrained weights and modify the model path in `test_sde_derain.yml`. Then by simply running `python app.py`, you can open `http://localhost:7860` to test the model. (We also provide 3 raining images from Rain100H in `images` dir).
 

@@ -8,10 +8,10 @@
 [Thomas B. Schön](https://user.it.uu.se/~thosc112/index.html)</br>
 Department of Information Technology, Uppsala University</br>
 
-**[Image Restoration with Mean-Reverting Stochastic Differential Equations](https://arxiv.org/abs/2301.11699)**</br>
+**[Image Restoration with Mean-Reverting Stochastic Differential Equations](https://arxiv.org/abs/2301.11699)** [[Weights and Results](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link)]</br>
 ![IR-SDE](figs/overview.png)
 
-**[Refusion: Enabling Large-Size Realistic Image Restoration with Latent-Space Diffusion Models](https://arxiv.org/abs/2304.08291)**</br>
+**[Refusion: Enabling Large-Size Realistic Image Restoration with Latent-Space Diffusion Models](https://arxiv.org/abs/2304.08291)** [[Weights and Results](https://drive.google.com/drive/folders/1Xy7z9CH0weck775ixePnjD6fZIjAbre7?usp=share_link)]</br>
 
 ![Refusion](figs/refusion.png)
 Both methods can be used for synthetic and real-world dataset. You can find more details and results from this **[Project page](https://algolzw.github.io/ir-sde/index.html)**.

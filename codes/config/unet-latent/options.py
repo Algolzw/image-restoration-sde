@@ -30,6 +30,7 @@ def parse(opt_path, is_train=True):
     for phase, dataset in opt["datasets"].items():
         phase = phase.split("_")[0]
         dataset["phase"] = phase
+        dataset["scale"] = 1
         
         is_lmdb = False
         if dataset.get("dataroot_GT", None) is not None:

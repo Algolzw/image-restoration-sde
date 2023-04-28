@@ -23,7 +23,7 @@ datasets:
   test1:
     name: test
     mode: LQ
-    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/dehazing/test
+    dataroot_LQ: /home/ziwlu/datasets/ntire2023/dehazing/test
 
 #### network structures
 network_G:

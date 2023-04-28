@@ -10,8 +10,8 @@ datasets:
   train:
     name: Train_Dataset
     mode: LQGT
-    dataroot_GT: /home/x_ziwlu/datasets/ntire2023/dehazing/train/GT_lsub
-    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/dehazing/train/LQ_lsub
+    dataroot_GT: /home/x_ziwlu/datasets/ntire2023/dehazing/train/GT
+    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/dehazing/train/LQ
 
     use_shuffle: true
     n_workers: 8  # per GPU
@@ -43,7 +43,7 @@ network_G:
 path:
   pretrain_model_G: ~
   strict_load: true
-  resume_state: log/lion_haze/training_state/260000.state
+  resume_state: ~
 
 #### training settings: learning rate scheme, loss
 train:

@@ -81,7 +81,7 @@ def read_img(env, path, size=None):
 # image processing
 # process on numpy image
 
-def augment(img, hflip=True, rot=True, mode=None):
+def augment(img, hflip=True, rot=True, mode=None, swap=None):
     # horizontal flip OR rotate
     hflip = hflip and random.random() < 0.5
     vflip = rot and random.random() < 0.5
@@ -98,6 +98,8 @@ def augment(img, hflip=True, rot=True, mode=None):
     if mode in ['LQ','GT', 'SRker']:
         return _augment(img)
     elif mode in ['LQGTker', 'LQGT']:
+        if swap and random.random() < 0.5:
+            img.reverse()
         return [_augment(I) for I in img]
 
 

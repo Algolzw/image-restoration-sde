@@ -77,7 +77,7 @@ class LQGTDataset(data.Dataset):
                 self._init_lmdb()
 
         GT_path, LR_path = None, None
-        scale = self.opt["scale"]
+        scale = self.opt["scale"] if self.opt["scale"] else 1
         GT_size = self.opt["GT_size"]
         LR_size = self.opt["LR_size"]
 
@@ -148,6 +148,7 @@ class LQGTDataset(data.Dataset):
                 self.opt["use_flip"],
                 self.opt["use_rot"],
                 self.opt["mode"],
+                self.opt["use_swap"],
             )
         elif LR_size is not None:
             H, W, C = img_LR.shape

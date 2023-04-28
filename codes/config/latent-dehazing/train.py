@@ -214,12 +214,6 @@ def main():
     sde = util.IRSDE(max_sigma=opt["sde"]["max_sigma"], T=opt["sde"]["T"], schedule=opt["sde"]["schedule"], eps=opt["sde"]["eps"], device=device)
     sde.set_model(model.model)
 
-    sample_sde = util.IRSDE(max_sigma=opt["sde"]["max_sigma"], 
-                            T=opt["sde"]["T"], sample_T=opt["sde"]["sample_T"],
-                            schedule=opt["sde"]["schedule"], 
-                            eps=opt["sde"]["eps"], device=device)
-    sample_sde.set_model(model.model)
-
     scale = opt['degradation']['scale']
 
     #### training
@@ -278,7 +272,7 @@ def main():
 
                     # valid Predictor
                     model.feed_data(noisy_state, latent_LQ, GT)
-                    model.test(sample_sde, hidden)
+                    model.test(sde, hidden)
                     visuals = model.get_current_visuals()
 
                     output = util.tensor2img(visuals["Output"].squeeze())  # uint8

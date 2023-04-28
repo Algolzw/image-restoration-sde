@@ -49,6 +49,10 @@ Note that **we didn't tune any parameter**, the last saved checkpoint was used t
 
 The pretrained models for all tasks are provided [here](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link), and the performances of other SOTAs can be find in [here](https://paperswithcode.com/sota/single-image-deraining-on-rain100h).
 
+### For Refusion Model
+
+Note that if you want to train/test the Refusion model, the only change is to replace the "**ir-sde.yml**" to "**refusion.yml**". More details please refer to the "demo.sh" bash script in each task's directory.
+
 ### Dataset Preparation
 
 We employ Rain100H datasets for training (totally 1,800 images) and testing (100 images). 
@@ -68,7 +72,7 @@ datasets/rain/testH/LQ
 ```
 
 Then get into the `codes/config/deraining` directory and modify the dataset paths in option files in 
-`options/derain/train/train_sde_derain.yml` and `options/derain/test/test_sde_derain.yml`.
+`options/train/ir-sde.yml` and `options/test/ir-sde.yml`.
 
 
 ### Train
@@ -80,10 +84,10 @@ You can train the model following below bash scripts:
 cd codes/config/deraining
 
 # For single GPU:
-python3 train.py -opt=options/derain/train/train_sde_derain.yml
+python3 train.py -opt=options/train/ir-sde.yml
 
 # For distributed training, need to change the gpu_ids in option file
-python3 -m torch.distributed.launch --nproc_per_node=2 --master_poer=4321 train.py -opt=options/derain/train/train_sde_derain.yml --launcher pytorch
+python3 -m torch.distributed.launch --nproc_per_node=2 --master_poer=4321 train.py -opt=options/train/ir-sde.yml --launcher pytorch
 ```
 
 Then the models and training logs will save in `log/derain_sde/`. 
@@ -94,7 +98,7 @@ To evaluate our method, please modify the benchmark path and model path and run
 
 ```bash
 cd codes/config/deraining
-python test.py -opt=options/derain/test/test_sde_derain.yml
+python test.py -opt=options/test/ir-sde.yml
 ```
 
 We also provide the results for different tasks [here](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link).

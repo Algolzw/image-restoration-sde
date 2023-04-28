@@ -67,11 +67,7 @@ for phase, dataset_opt in sorted(opt["datasets"].items()):
 model = create_model(opt)
 device = model.device
 
-# sde = util.IRSDE(max_sigma=opt["sde"]["max_sigma"], T=opt["sde"]["T"], schedule=opt["sde"]["schedule"], eps=opt["sde"]["eps"], device=device)
-sde = util.IRSDE(max_sigma=opt["sde"]["max_sigma"], 
-                 T=opt["sde"]["T"], sample_T=opt["sde"]["sample_T"],
-                 schedule=opt["sde"]["schedule"], 
-                 eps=opt["sde"]["eps"], device=device)
+sde = util.IRSDE(max_sigma=opt["sde"]["max_sigma"], T=opt["sde"]["T"], schedule=opt["sde"]["schedule"], eps=opt["sde"]["eps"], device=device)
 sde.set_model(model.model)
 
 for test_loader in test_loaders:
@@ -88,9 +84,6 @@ for test_loader in test_loaders:
         img_path = test_data["GT_path"][0] if need_GT else test_data["LQ_path"][0]
         img_name = os.path.splitext(os.path.basename(img_path))[0]
         print(img_name)
-
-        #if i < 37:
-        #    continue
 
         #### input dataset_LQ
         LQ = test_data["LQ"]

@@ -186,19 +186,9 @@ class DenoisingModel(BaseModel):
                 # if perform Denoising ODE
                 latent = sde.reverse_ode(self.state, save_states=save_states)
 
-            self.full_lq = self.decode(self.condition, hidden)
             self.output = self.decode(latent, hidden)
 
         self.model.train()
-        
-        tvutils.save_image(self.condition[:, :4].data, f'image/condition.png', normalize=False)
-        tvutils.save_image(self.state[:, :4].data, f'image/state.png', normalize=False)
-        tvutils.save_image(latent[:, :4].data, f'image/latent.png', normalize=False)
-        
-        tvutils.save_image(self.full_lq.data, f'image/LQ.png', normalize=False)
-        tvutils.save_image(self.output.data, f'image/SR.png', normalize=False)
-        if self.state_0 is not None:
-            tvutils.save_image(self.state_0.data, f'image/GT.png', normalize=False)
 
     def get_current_log(self):
         return self.log_dict

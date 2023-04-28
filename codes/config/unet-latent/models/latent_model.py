@@ -199,8 +199,8 @@ class LatentModel(BaseModel):
         tvutils.save_image(self.real_gt.data, f'image/GT_real.png', normalize=False)
         tvutils.save_image(self.real_lq.data, f'image/LQ_real.png', normalize=False)
 
-        tvutils.save_image(L_lq[:, :].data, f'image/LQ_latent.png', normalize=False)
-        tvutils.save_image(L_gt[:, :].data, f'image/GT_latent.png', normalize=False)
+        # tvutils.save_image(L_lq[:, :].data, f'image/LQ_latent.png', normalize=False)
+        # tvutils.save_image(L_gt[:, :].data, f'image/GT_latent.png', normalize=False)
 
     def get_current_log(self):
         return self.log_dict

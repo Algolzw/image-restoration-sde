@@ -154,4 +154,4 @@ The following are BibTeX references:
 E-mail: ziwei.luo@it.uu.se
 
 #### --- Thanks for your interest! --- ####
-![visitors](https://visitor-badge.glitch.me/badge?page_id=Algolzw/image-restoration-sde)
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=Algolzw/image-restoration-sde)

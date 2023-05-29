@@ -1,0 +1,85 @@
+#### general settings
+name: reffusion-ssr
+use_tb_logger: true
+model: denoising
+distortion: sr
+gpu_ids: [0]
+
+sde:
+  max_sigma: 50
+  T: 100
+  schedule: cosine # linear, cosine
+  eps: 0.005
+
+degradation: # for some synthetic dataset that only have GTs
+  # for denoising
+  sigma: 25
+  noise_type: G # Gaussian noise: G
+
+  # for super-resolution
+  scale: 4
+  
+#### datasets
+datasets:
+  train:
+    name: Train_Dataset
+    mode: SteLQGT
+    dataroot_GT: /home/x_ziwlu/datasets/ntire2023/stereo-sr/train/HR
+    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/stereo-sr/train/LR_x4
+
+    use_shuffle: true
+    n_workers: 4  # per GPU
+    batch_size: 8
+    GT_size: 128
+    LR_size: 32
+    use_flip: false
+    use_rot: true
+    color: RGB
+  val:
+    name: Val_Dataset
+    mode: SteLQGT
+    dataroot_GT: /home/x_ziwlu/datasets/ntire2023/stereo-sr/val/fake_HR
+    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/stereo-sr/val/fake_LR
+
+
+#### network structures
+network_G:
+  which_model_G: ConditionalNAFNet
+  setting:
+    width: 64
+    enc_blk_nums: [1, 1, 1, 28]
+    middle_blk_num: 1
+    dec_blk_nums: [1, 1, 1, 1]
+
+#### path
+path:
+  pretrain_model_G: ~
+  strict_load: true
+  resume_state: ~
+
+#### training settings: learning rate scheme, loss
+train:
+  optimizer: Lion # Adam, AdamW, Lion
+  lr_G: !!float 3e-5
+  lr_scheme: TrueCosineAnnealingLR
+  beta1: 0.9
+  beta2: 0.99
+  niter: 600000
+  warmup_iter: -1  # no warm up
+  lr_steps: [200000, 400000, 600000]
+  lr_gamma: 0.5
+  eta_min: !!float 1e-7
+
+  # criterion
+  is_weighted: False
+  loss_type: l1
+  weight: 1.0
+
+  manual_seed: 0
+  val_freq: !!float 1e4
+
+#### logger
+logger:
+  print_freq: 200
+  save_checkpoint_freq: !!float 1e4
+

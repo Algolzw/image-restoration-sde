@@ -1,0 +1,39 @@
+name: reffusion-ssr
+suffix: ~  # add suffix to saved images
+model: denoising
+distortion: sr
+gpu_ids: [0]
+
+sde:
+  max_sigma: 50
+  T: 100
+  sample_T: 100
+  schedule: cosine # linear, cosine
+  eps: 0.005
+  
+degradation:
+  # for denoising
+  sigma: 25
+  noise_type: G # Gaussian noise: G
+
+  # for super-resolution
+  scale: 4
+
+datasets:
+  test1:
+    name: Test
+    mode: SteLQ
+    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/stereo-sr/test/LR_x4
+
+#### network structures
+network_G:
+  which_model_G: ConditionalNAFNet
+  setting:
+    width: 64
+    enc_blk_nums: [1, 1, 1, 28]
+    middle_blk_num: 1
+    dec_blk_nums: [1, 1, 1, 1]
+
+#### path
+path:
+  pretrain_model_G: pretrained_models/reffusion-ssr.pth

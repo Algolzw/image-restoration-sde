@@ -1,0 +1,100 @@
+#### general settings
+name: latent-reffusion-bokeh
+use_tb_logger: true
+model: latent_denoising
+distortion: bokeh
+gpu_ids: [0]
+
+sde:
+  max_sigma: 50
+  T: 100
+  schedule: cosine # linear, cosine
+  eps: 0.005
+
+degradation: # for some synthetic dataset that only have GTs
+  # for denoising
+  sigma: 25
+  noise_type: G # Gaussian noise: G
+
+  # for super-resolution
+  scale: 4
+  
+#### datasets
+datasets:
+  train:
+    name: Train_Dataset
+    mode: BokehLQGT
+    dataroot_GT: /home/x_ziwlu/datasets/ntire2023/bokeh/train/tgt
+    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/bokeh/train/src
+    dataroot_alpha: /home/x_ziwlu/datasets/ntire2023/bokeh/train/alpha
+    dataroot_meta: /home/x_ziwlu/datasets/ntire2023/bokeh/train/meta.txt
+
+    use_shuffle: true
+    n_workers: 8  # per GPU
+    batch_size: 8
+    GT_size: 512
+    LR_size: 512
+    use_flip: true
+    use_rot: true
+    use_swap: false
+    color: RGB
+  val:
+    name: Val_Dataset
+    mode: BokehLQGT
+    dataroot_GT: /home/x_ziwlu/datasets/ntire2023/bokeh/val/tgt
+    dataroot_LQ: /home/x_ziwlu/datasets/ntire2023/bokeh/val/src
+    dataroot_alpha: /home/x_ziwlu/datasets/ntire2023/bokeh/val/alpha
+    dataroot_meta: /home/x_ziwlu/datasets/ntire2023/bokeh/val/meta.txt
+
+#### network structures
+network_G:
+  which_model: ConditionalNAFNet
+  setting:
+    img_channel: 4
+    width: 64
+    enc_blk_nums: [2, 2, 4, 8]
+    middle_blk_num: 12
+    dec_blk_nums: [2, 2, 2, 2]
+
+network_L:
+  which_model: UNet
+  setting:
+    in_ch: 3
+    out_ch: 3
+    ch: 64
+    ch_mult: [1, 2, 4]
+    embed_dim: 4
+
+#### path
+path:
+  pretrain_model_G: ~
+  strict_load: true
+  resume_state: ~
+  pretrain_model_L: pretrained_models/latent-bokeh.pth
+
+#### training settings: learning rate scheme, loss
+train:
+  optimizer: Lion
+  lr_G: !!float 3e-5
+  lr_scheme: TrueCosineAnnealingLR
+  beta1: 0.9
+  beta2: 0.99
+  niter: 1000000
+  warmup_iter: -1  # no warm up
+  lr_steps: [200000, 400000, 600000]
+  lr_gamma: 0.5
+  eta_min: !!float 1e-7
+
+  # criterion
+  is_weighted: False
+  loss_type: l1
+  weight: 1.0
+
+  manual_seed: 0
+  val_freq: !!float 1e4
+
+#### logger
+logger:
+  print_freq: 200
+  save_checkpoint_freq: !!float 1e4
+

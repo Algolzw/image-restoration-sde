@@ -85,18 +85,17 @@ for test_loader in test_loaders:
         img_name = os.path.splitext(os.path.basename(img_path))[0]
         print(img_name)
 
-        #if i < 37:
-        #    continue
-
         #### input dataset_LQ
         LQ = test_data["LQ"]
         src_lens, tgt_lens, disparity = test_data["src_lens"], test_data["tgt_lens"], test_data["disparity"]
-        noisy_state = sde.noise_state(LQ)
+        with torch.no_grad():
+            latent_LQ, hidden = model.encode(LQ.to(device))
+            noisy_state = sde.noise_state(latent_LQ)
 
-        model.feed_data(noisy_state, LQ, 
+        model.feed_data(noisy_state, latent_LQ, 
             GT=None, src_lens=src_lens, tgt_lens=tgt_lens, disparity=disparity)
         tic = time.time()
-        model.test(sde, save_states=False)
+        model.test(sde, hidden, save_states=False)
         toc = time.time()
         test_times.append(toc - tic)
 

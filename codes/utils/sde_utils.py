@@ -184,14 +184,14 @@ class IRSDE(SDE):
     def get_score_from_noise(self, noise, t):
         return -noise / self.sigma_bar(t)
 
-    def score_fn(self, x, t):
+    def score_fn(self, x, t, **kwargs):
         # need to pre-set mu and score_model
-        noise = self.model(x, self.mu, t)
+        noise = self.model(x, self.mu, t, **kwargs)
         return self.get_score_from_noise(noise, t)
 
-    def noise_fn(self, x, t):
+    def noise_fn(self, x, t, **kwargs):
         # need to pre-set mu and score_model
-        return self.model(x, self.mu, t)
+        return self.model(x, self.mu, t, **kwargs)
 
     # optimum x_{t-1}
     def reverse_optimum_step(self, xt, x0, t):
@@ -227,11 +227,11 @@ class IRSDE(SDE):
             tvutils.save_image(x.data, f'{save_dir}/state_{t}.png', normalize=False)
         return x
 
-    def reverse_sde(self, xt, T=-1, save_states=False, save_dir='sde_state'):
+    def reverse_sde(self, xt, T=-1, save_states=False, save_dir='sde_state', **kwargs):
         T = self.T if T < 0 else T
         x = xt.clone()
         for t in tqdm(reversed(range(1, T + 1))):
-            score = self.score_fn(x, t)
+            score = self.score_fn(x, t, **kwargs)
             x = self.reverse_sde_step(x, score, t)
 
             if save_states: # only consider to save 100 images
@@ -243,11 +243,11 @@ class IRSDE(SDE):
 
         return x
 
-    def reverse_ode(self, xt, T=-1, save_states=False, save_dir='ode_state'):
+    def reverse_ode(self, xt, T=-1, save_states=False, save_dir='ode_state', **kwargs):
         T = self.T if T < 0 else T
         x = xt.clone()
         for t in tqdm(reversed(range(1, T + 1))):
-            score = self.score_fn(x, t)
+            score = self.score_fn(x, t, **kwargs)
             x = self.reverse_ode_step(x, score, t)
 
             if save_states: # only consider to save 100 images

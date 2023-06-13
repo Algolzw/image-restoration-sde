@@ -1,3 +1,6 @@
 .DS_Store
 sftp-config.json
-
+**/__pycache__/
+**/results/
+**/result
+**/sde_state/

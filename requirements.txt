@@ -18,3 +18,4 @@ ipython
 seaborn
 ipykernel
 tensorboard==2.13.0
+wandb==0.15.4

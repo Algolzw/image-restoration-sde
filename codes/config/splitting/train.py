@@ -4,8 +4,10 @@ import math
 import os
 import random
 import sys
+import socket
 import copy
 
+import wandb
 import cv2
 import numpy as np
 import torch
@@ -111,42 +113,52 @@ def main():
             # os.symlink(os.path.join(opt["path"]["experiments_root"], ".."), "./log")
 
         # config loggers. Before it, the log will not work
-        util.setup_logger(
-            "base",
-            opt["path"]["log"],
-            "train_" + opt["name"],
-            level=logging.INFO,
-            screen=False,
-            tofile=True,
-        )
-        util.setup_logger(
-            "val",
-            opt["path"]["log"],
-            "val_" + opt["name"],
-            level=logging.INFO,
-            screen=False,
-            tofile=True,
-        )
-        logger = logging.getLogger("base")
-        logger.info(option.dict2str(opt))
+        # util.setup_logger(
+        #     "base",
+        #     opt["path"]["log"],
+        #     "train_" + opt["name"],
+        #     level=logging.INFO,
+        #     screen=False,
+        #     tofile=True,
+        # )
+        # util.setup_logger(
+        #     "val",
+        #     opt["path"]["log"],
+        #     "val_" + opt["name"],
+        #     level=logging.INFO,
+        #     screen=False,
+        #     tofile=True,
+        # )
+        # logger = logging.getLogger("base")
+        # logger.info(option.dict2str(opt))
+        prefix= os.path.dirname(os.path.dirname(opt["path"]["experiments_root"]))
+        expname = opt["path"]["experiments_root"][len(prefix)+1:]
+        hostname = socket.gethostname()
+        wandb.init(name=os.path.join(hostname, expname),
+                         dir=opt["path"]["log"],
+                         project="DiffusionSplitting",
+                         config=opt)
+         
+
         # tensorboard logger
-        if opt["use_tb_logger"] and "debug" not in opt["name"]:
-            version = float(torch.__version__[0:3])
-            if version >= 1.1:  # PyTorch 1.1
-                from torch.utils.tensorboard import SummaryWriter
-            else:
-                logger.info(
-                    "You are using PyTorch {}. Tensorboard will use [tensorboardX]".format(
-                        version
-                    )
-                )
-                from tensorboardX import SummaryWriter
-            tb_logger = SummaryWriter(log_dir="log/{}/tb_logger/".format(opt["name"]))
+        # if opt["use_tb_logger"] and "debug" not in opt["name"]:
+        #     version = float(torch.__version__[0:3])
+        #     if version >= 1.1:  # PyTorch 1.1
+        #         from torch.utils.tensorboard import SummaryWriter
+        #     else:
+        #         logger.info(
+        #             "You are using PyTorch {}. Tensorboard will use [tensorboardX]".format(
+        #                 version
+        #             )
+        #         )
+        #         # from tensorboardX import SummaryWriter
+        #     # tb_logger = SummaryWriter(log_dir="log/{}/tb_logger/".format(opt["name"]))
     else:
-        util.setup_logger(
-            "base", opt["path"]["log"], "train", level=logging.INFO, screen=False
-        )
-        logger = logging.getLogger("base")
+        raise NotImplementedError('handle this case')
+        # util.setup_logger(
+        #     "base", opt["path"]["log"], "train", level=logging.INFO, screen=False
+        # )
+        # logger = logging.getLogger("base")
 
 
     #### create train and val dataloader
@@ -169,12 +181,12 @@ def main():
                 train_sampler = None
             train_loader = create_dataloader(train_set, dataset_opt, opt, train_sampler)
             if rank <= 0:
-                logger.info(
+                print(
                     "Number of train images: {:,d}, iters: {:,d}".format(
                         len(train_set), train_size
                     )
                 )
-                logger.info(
+                print(
                     "Total epochs needed: {:d} for iters {:,d}".format(
                         total_epochs, total_iters
                     )
@@ -185,7 +197,7 @@ def main():
             val_set = create_dataset(dataset_opt)
             val_loader = create_dataloader(val_set, dataset_opt, opt, None)
             if rank <= 0:
-                logger.info(
+                print(
                     "Number of val images in [{:s}]: {:d}".format(
                         dataset_opt["name"], len(val_set)
                     )
@@ -204,7 +216,7 @@ def main():
 
     #### resume training
     if resume_state:
-        logger.info(
+        print(
             "Resuming training from epoch: {}, iter: {}.".format(
                 resume_state["epoch"], resume_state["iter"]
             )
@@ -223,7 +235,7 @@ def main():
     # scale = opt['degradation']['scale']
 
     #### training
-    logger.info(
+    print(
         "Start training from epoch: {:d}, iter: {:d}".format(start_epoch, current_step)
     )
 
@@ -259,9 +271,9 @@ def main():
                     # tensorboard logger
                     if opt["use_tb_logger"] and "debug" not in opt["name"]:
                         if rank <= 0:
-                            tb_logger.add_scalar(k, v, current_step)
+                            wandb.log({k: v,'step':current_step})#, current_step)
                 if rank <= 0:
-                    logger.info(message)
+                    print(message)
 
             # validation, to produce ker_map_list(fake)
             if current_step % opt["train"]["val_freq"] == 0 and rank <= 0:
@@ -291,34 +303,36 @@ def main():
                     best_iter = current_step
 
                 # log
-                logger.info("# Validation # PSNR: {:.6f}, Best PSNR: {:.6f}| Iter: {}".format(avg_psnr, best_psnr, best_iter))
-                logger_val = logging.getLogger("val")  # validation logger
-                logger_val.info(
-                    "<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
-                        epoch, current_step, avg_psnr
-                    )
-                )
+                wandb.log({"val_psnr":avg_psnr})
+                wandb.log({'step':current_step})
+
+                # print("# Validation # PSNR: {:.6f}, Best PSNR: {:.6f}| Iter: {}".format(avg_psnr, best_psnr, best_iter))
+                # logger_val = logging.getLogger("val")  # validation logger
+                # logger_val.info(
+                #     "<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
+                #         epoch, current_step, avg_psnr
+                #     )
+                # )
                 print("<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
                         epoch, current_step, avg_psnr
                     ))
-                # tensorboard logger
-                if opt["use_tb_logger"] and "debug" not in opt["name"]:
-                    tb_logger.add_scalar("psnr", avg_psnr, current_step)
+                # # tensorboard logger
+                # if opt["use_tb_logger"] and "debug" not in opt["name"]:
+                #     tb_logger.add_scalar("psnr", avg_psnr, current_step)
 
             if error.value:
                 sys.exit(0)
             #### save models and training states
             if current_step % opt["logger"]["save_checkpoint_freq"] == 0:
                 if rank <= 0:
-                    logger.info("Saving models and training states.")
+                    print("Saving models and training states.")
                     model.save(current_step)
                     model.save_training_state(epoch, current_step)
 
     if rank <= 0:
-        logger.info("Saving the final model.")
+        print("Saving the final model.")
         model.save("latest")
-        logger.info("End of Predictor and Corrector training.")
-    tb_logger.close()
+        print("End of Predictor and Corrector training.")
 
 
 if __name__ == "__main__":

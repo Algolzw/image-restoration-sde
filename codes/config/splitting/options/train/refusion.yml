@@ -29,7 +29,7 @@ datasets:
     downscale_factor: 4
     use_shuffle: true
     n_workers: 4  # per GPU
-    batch_size: 4
+    batch_size: 16
     GT_size: 128
     LR_size: 128
     # use_flip: true
@@ -127,7 +127,7 @@ train:
   weight: 1.0
 
   manual_seed: 0
-  val_freq: !!float 5e2
+  val_freq: !!float 50
 
 #### logger
 logger:

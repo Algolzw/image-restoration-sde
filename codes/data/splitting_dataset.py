@@ -36,6 +36,7 @@ class SplittingDataset:
 
         self._fpath = data_config['fpath']
         self._data = self.N = None
+        self._downscale_factor = data_config.get('downscale_factor', None)
 
         if data_config['datasplit_type'] == 'train':
             datasplit_type = DataSplitType.Train
@@ -115,6 +116,9 @@ class SplittingDataset:
                                         val_fraction=val_fraction,
                                         test_fraction=test_fraction,
                                         allow_generation=allow_generation)
+        
+        if self._downscale_factor is not None:
+            self._data = self._data[:,::self._downscale_factor, ::self._downscale_factor].copy()
         self.N = len(self._data)
 
     def save_background(self, channel_idx, frame_idx, background_value):
@@ -209,6 +213,9 @@ class SplittingDataset:
         msg = f'[{self.__class__.__name__}] Sz:{self._img_sz}'
         msg += f' Train:{int(self._is_train)} N:{self.N} NumPatchPerN:{self._repeat_factor}'
         msg += f' Ch1w:{self.ch1_weight}'
+        if self._downscale_factor:
+            msg += ' Dfac:{self._downscale_factor}'
+            
         msg += f' NormInp:{self._normalized_input}'
         msg += f' SingleNorm:{self._use_one_mu_std}'
         msg += f' Rot:{self._enable_rotation}'

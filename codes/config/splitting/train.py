@@ -95,9 +95,9 @@ def main():
     if rank <= 0:  # normal training (rank -1) OR distributed training (rank 0-7)
         if resume_state is None:
             # Predictor path
-            util.mkdir_and_rename(
-                opt["path"]["experiments_root"]
-            )  # rename experiment folder if exists
+            # util.mkdir_and_rename(
+            #     opt["path"]["experiments_root"]
+            # )  # rename experiment folder if exists
             util.mkdirs(
                 (
                     path
@@ -107,8 +107,8 @@ def main():
                     and "resume" not in key
                 )
             )
-            os.system("rm ./log")
-            os.symlink(os.path.join(opt["path"]["experiments_root"], ".."), "./log")
+            # os.system("rm ./log")
+            # os.symlink(os.path.join(opt["path"]["experiments_root"], ".."), "./log")
 
         # config loggers. Before it, the log will not work
         util.setup_logger(
@@ -220,7 +220,7 @@ def main():
     sde = util.IRSDE(max_sigma=opt["sde"]["max_sigma"], T=opt["sde"]["T"], schedule=opt["sde"]["schedule"], eps=opt["sde"]["eps"], device=device)
     sde.set_model(model.model)
 
-    scale = opt['degradation']['scale']
+    # scale = opt['degradation']['scale']
 
     #### training
     logger.info(
@@ -277,8 +277,8 @@ def main():
                     model.test(sde)
                     visuals = model.get_current_visuals()
 
-                    output = util.tensor2img(visuals["Output"].squeeze())  # uint8
-                    gt_img = util.tensor2img(visuals["GT"].squeeze())  # uint8
+                    output = visuals["Output"].squeeze().cpu().detach().numpy()
+                    gt_img = visuals["GT"].squeeze().cpu().detach().numpy()
 
                     # calculate PSNR
                     avg_psnr += util.calculate_psnr(output, gt_img)

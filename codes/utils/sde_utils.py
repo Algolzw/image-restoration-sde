@@ -50,7 +50,7 @@ class SDE(abc.ABC):
     def forward(self, x0, T=-1):
         T = self.T if T < 0 else T
         x = x0.clone()
-        for t in tqdm(range(1, T + 1)):
+        for t in range(1, T + 1):
             x = self.forward_step(x, t)
 
         return x
@@ -58,7 +58,7 @@ class SDE(abc.ABC):
     def reverse_sde(self, xt, T=-1):
         T = self.T if T < 0 else T
         x = xt.clone()
-        for t in tqdm(reversed(range(1, T + 1))):
+        for t in reversed(range(1, T + 1)):
             score = self.score_fn(x, t)
             x = self.reverse_sde_step(x, score, t)
 
@@ -67,7 +67,7 @@ class SDE(abc.ABC):
     def reverse_ode(self, xt, T=-1):
         T = self.T if T < 0 else T
         x = xt.clone()
-        for t in tqdm(reversed(range(1, T + 1))):
+        for t in reversed(range(1, T + 1)):
             score = self.score_fn(x, t)
             x = self.reverse_ode_step(x, score, t)
 
@@ -220,7 +220,7 @@ class IRSDE(SDE):
     def forward(self, x0, T=-1, save_dir='forward_state'):
         T = self.T if T < 0 else T
         x = x0.clone()
-        for t in tqdm(range(1, T + 1)):
+        for t in range(1, T + 1):
             x = self.forward_step(x, t)
 
             os.makedirs(save_dir, exist_ok=True)
@@ -230,7 +230,7 @@ class IRSDE(SDE):
     def reverse_sde(self, xt, T=-1, save_states=False, save_dir='sde_state'):
         T = self.T if T < 0 else T
         x = xt.clone()
-        for t in tqdm(reversed(range(1, T + 1))):
+        for t in reversed(range(1, T + 1)):
             score = self.score_fn(x, t)
             x = self.reverse_sde_step(x, score, t)
 
@@ -246,7 +246,7 @@ class IRSDE(SDE):
     def reverse_ode(self, xt, T=-1, save_states=False, save_dir='ode_state'):
         T = self.T if T < 0 else T
         x = xt.clone()
-        for t in tqdm(reversed(range(1, T + 1))):
+        for t in reversed(range(1, T + 1)):
             score = self.score_fn(x, t)
             x = self.reverse_ode_step(x, score, t)
 
@@ -290,7 +290,7 @@ class IRSDE(SDE):
     def optimal_reverse(self, xt, x0, T=-1):
         T = self.T if T < 0 else T
         x = xt.clone()
-        for t in tqdm(reversed(range(1, T + 1))):
+        for t in reversed(range(1, T + 1)):
             x = self.reverse_optimum_step(x, x0, t)
 
         return x
@@ -444,7 +444,7 @@ class DenoisingSDE(SDE):
     def reverse_sde(self, xt, x0=None, T=-1, save_states=False, save_dir='sde_state'):
         T = self.T if T < 0 else T
         x = xt.clone()
-        for t in tqdm(reversed(range(1, T + 1))):
+        for t in reversed(range(1, T + 1)):
             if x0 is not None:
                 score = self.get_real_score(x, x0, t)
             else:
@@ -463,7 +463,7 @@ class DenoisingSDE(SDE):
     def reverse_ode(self, xt, x0=None, T=-1, save_states=False, save_dir='ode_state'):
         T = self.T if T < 0 else T
         x = xt.clone()
-        for t in tqdm(reversed(range(1, T + 1))):
+        for t in reversed(range(1, T + 1)):
             if x0 is not None:
                 real_score = self.get_real_score(x, x0, t)
 
@@ -532,7 +532,7 @@ class DenoisingSDE(SDE):
     def optimal_reverse(self, xt, x0, T=-1):
         T = self.T if T < 0 else T
         x = xt.clone()
-        for t in tqdm(reversed(range(1, T + 1))):
+        for t in reversed(range(1, T + 1)):
             x = self.reverse_optimum_step(x, x0, t)
 
         return x

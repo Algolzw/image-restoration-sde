@@ -41,6 +41,10 @@ def create_dataset(dataset_opt):
     elif mode == "LQGT":  # SFTMD
         from data.LQGT_dataset import LQGTDataset as D
         dataset = D(dataset_opt)
+    elif mode == 'LQGT_splitting':
+        from data.splitting_dataset import SplittingDataset as D
+        from core.data_split_type import DataSplitType
+        dataset = D(dataset_opt)
     elif mode == "GT":  # Corrector
         from data.GT_dataset import GTDataset as D
         dataset = D(dataset_opt)

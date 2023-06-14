@@ -87,6 +87,8 @@ class LQGTDataset(data.Dataset):
             resolution = [int(s) for s in self.GT_sizes[index].split("_")]
         else:
             resolution = None
+        
+        
         img_GT = util.read_img(
             self.GT_env, GT_path, resolution
         )  # return: Numpy float32, HWC, BGR, [0,1]
@@ -188,6 +190,7 @@ class LQGTDataset(data.Dataset):
         if LR_path is None:
             LR_path = GT_path
 
+        import pdb;pdb.set_trace()
         return {"LQ": img_LR, "GT": img_GT, "LQ_path": LR_path, "GT_path": GT_path}
 
     def __len__(self):

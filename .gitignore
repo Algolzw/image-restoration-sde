@@ -4,3 +4,6 @@ sftp-config.json
 **/results/
 **/result
 **/sde_state/
+log/**
+.vscode/**
+experiments/

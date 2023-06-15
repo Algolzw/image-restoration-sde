@@ -6,14 +6,14 @@ distortion: splitting
 gpu_ids: [0]
 
 sde:
-  max_sigma: 50
+  max_sigma: 20
   T: 100
   schedule: cosine # linear, cosine
   eps: 0.005
 
 degradation: # for some synthetic dataset that only have GTs
   # for denoising
-  sigma: 25
+  # sigma: 25
   noise_type: G # Gaussian noise: G
 
   # for super-resolution

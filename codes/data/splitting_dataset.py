@@ -341,6 +341,12 @@ class SplittingDataset:
             normalized_imgs.append(img)
         return tuple(normalized_imgs)
 
+    def unnormalize_img(self, img):
+        mean, std = self.get_mean_std()
+        assert mean[:,0] == mean[:,1]
+        assert std[:,0] == std[:,1]
+        return img*std[:,:1] + mean[:,:1]
+            
     def get_grid_size(self):
         return self._grid_sz
 

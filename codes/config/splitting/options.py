@@ -73,6 +73,9 @@ def parse(opt_path, is_train=True):
         )
         # set experiment root correctly. Everythiing else will be fine. 
         experiments_root  = get_workdir(experiments_root,use_max_version=False)[0]
+        print('')
+        print('Root directory', experiments_root)
+        print('')
         opt["path"]["experiments_root"] = experiments_root
         opt["path"]["models"] = osp.join(experiments_root, "models")
         opt["path"]["training_state"] = osp.join(experiments_root, "training_state")

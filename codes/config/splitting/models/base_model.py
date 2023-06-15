@@ -104,14 +104,17 @@ class BaseModel:
 
         network.load_state_dict(load_net_clean, strict=strict)
 
-    def save_training_state(self, epoch, iter_step):
+    def save_training_state(self, epoch, iter_step, filename=None):
         """Saves training state during training, which will be used for resuming"""
         state = {"epoch": epoch, "iter": iter_step, "schedulers": [], "optimizers": []}
         for s in self.schedulers:
             state["schedulers"].append(s.state_dict())
         for o in self.optimizers:
             state["optimizers"].append(o.state_dict())
-        save_filename = "{}.state".format(iter_step)
+        if filename:
+            save_filename = "{}.state".format(filename)
+        else:    
+            save_filename = "{}.state".format(iter_step)
         save_path = os.path.join(self.opt["path"]["training_state"], save_filename)
         torch.save(state, save_path)
 

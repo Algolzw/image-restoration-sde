@@ -26,7 +26,7 @@ datasets:
     name: Train_Dataset
     mode: LQGT_splitting
     fpath: /group/jug/ashesh/data/microscopy/OptiMEM100x014.tif
-    downscale_factor: 4
+    downscale_factor: 6
     use_shuffle: true
     n_workers: 4  # per GPU
     batch_size: 16
@@ -59,13 +59,13 @@ datasets:
     name: Val_Dataset
     mode: LQGT_splitting
     fpath: /group/jug/ashesh/data/microscopy/OptiMEM100x014.tif
-    downscale_factor: 4
+    downscale_factor: 6
 
     use_shuffle: false
     n_workers: 4  # per GPU
     batch_size: 4
-    GT_size: 256
-    LR_size: 256
+    GT_size: 128
+    LR_size: 128
     # use_flip: true
     # use_rot: true
     color: null
@@ -127,9 +127,9 @@ train:
   weight: 1.0
 
   manual_seed: 0
-  val_freq: !!float 500
+  val_freq: !!float 50
 
 #### logger
 logger:
   print_freq: 100
-  save_checkpoint_freq: !!float 5e3
+  # save_checkpoint_freq: !!float 5e3

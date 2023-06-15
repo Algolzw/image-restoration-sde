@@ -1,18 +1,16 @@
 import argparse
-import logging
 import math
 import os
-import random
 import sys
 import socket
-import copy
 
 import wandb
-import cv2
 import numpy as np
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
+from tqdm import tqdm
+import imageio
 # from IPython import embed
 
 import options as option
@@ -25,6 +23,7 @@ from data import create_dataloader, create_dataset
 from data.data_sampler import DistIterSampler
 
 from data.util import bgr2ycbcr
+from utils.stitch_prediction import stitch_predictions
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -278,31 +277,27 @@ def main():
 
             # validation, to produce ker_map_list(fake)
             if current_step % opt["train"]["val_freq"] == 0 and rank <= 0:
-                avg_psnr = 0.0
-                idx = 0
-                for _, val_data in enumerate(val_loader):
+                prediction, target = get_dset_prediction(model, sde, val_set, val_loader)
+                assert prediction.shape[-1] == target.shape[-1]
+                assert prediction.shape[-1] == 1
 
-                    LQ, GT = val_data["LQ"], val_data["GT"]
-                    noisy_state = sde.noise_state(LQ)
-
-                    # valid Predictor
-                    model.feed_data(noisy_state, LQ, GT)
-                    model.test(sde)
-                    visuals = model.get_current_visuals()
-
-                    output = visuals["Output"]#.squeeze().cpu().detach().numpy()
-                    gt_img = visuals["GT"]#.squeeze().cpu().detach().numpy()
-
-                    # calculate PSNR
-                    import pdb;pdb.set_trace()
-                    avg_psnr += torch.sum(RangeInvariantPsnr(gt_img, output))
-                    idx += len(LQ)
-
-                avg_psnr = avg_psnr / idx
-
+                prediction = prediction[...,0]
+                target = target[...,0]
+                avg_psnr = RangeInvariantPsnr(target, prediction)
+                avg_psnr = torch.mean(avg_psnr).item()
+                
+                save_imgs(val_set.unnormalize_img(prediction[:,None])[:,0], 
+                          val_set.unnormalize_img(target[:,None])[:,0],
+                          current_step, 
+                          opt["path"]["val_images"])
+                
                 if avg_psnr > best_psnr:
                     best_psnr = avg_psnr
                     best_iter = current_step
+                    print("Saving models and training states.", current_step)
+                    model.save('best')
+                    model.save_training_state(epoch, current_step, filename='best')
+
 
                 # log
                 wandb.log({"val_psnr":avg_psnr})
@@ -325,17 +320,69 @@ def main():
             if error.value:
                 sys.exit(0)
             #### save models and training states
-            if current_step % opt["logger"]["save_checkpoint_freq"] == 0:
-                if rank <= 0:
-                    print("Saving models and training states.")
-                    model.save(current_step)
-                    model.save_training_state(epoch, current_step)
+            # if current_step % opt["logger"]["save_checkpoint_freq"] == 0:
+            #     if rank <= 0:
+            #         print("Saving models and training states.")
+            #         model.save(current_step)
+            #         model.save_training_state(epoch, current_step)
 
     if rank <= 0:
         print("Saving the final model.")
         model.save("latest")
         print("End of Predictor and Corrector training.")
 
+def save_imgs(prediction, target, current_step, direc, save_to_wandb=False):
+    if not os.path.exists(direc):
+        os.mkdir(direc)
+    idx = 0
+    imageio.imwrite(os.path.join(direc,f'target_{idx}.png'), target[idx].astype(np.int16), format='png')
+    imageio.imwrite(os.path.join(direc,f'prediction_{idx}_{current_step}.png'), 
+                    prediction[idx].astype(np.int16), format='png')
+    if save_to_wandb:
+        wandb.log({"prediction": [wandb.Image(prediction)]})
+
+        
+
+
+def get_trimmed_pixel_count(pred):
+    """
+    Return a number of pixels for which no predictions were made because they were at the edge.
+    """
+    ignored_pixels = 1
+    while(pred[0,-ignored_pixels:,-ignored_pixels:,].std() ==0):
+        ignored_pixels+=1
+    ignored_pixels-=1
+    return ignored_pixels
+
+
+def get_dset_prediction(model, sde, dset, dloader):
+    idx = 0
+    predictions = []
+    target = []
+    for val_data in tqdm(dloader):
+
+        LQ, GT = val_data["LQ"], val_data["GT"]
+        noisy_state = sde.noise_state(LQ)
+
+        # valid Predictor
+        model.feed_data(noisy_state, LQ, GT)
+        model.test(sde)
+        visuals = model.get_current_visuals()
+
+        output = visuals["Output"]#.squeeze().cpu().detach().numpy()
+        gt_img = visuals["GT"]#.squeeze().cpu().detach().numpy()
+
+        # store for tiled prediction
+        predictions.append(output.cpu().numpy())
+        target.append(gt_img.cpu().numpy())
+        idx += len(LQ)
+
+    predictions = np.concatenate(predictions, axis=0)[:,None]
+    target = np.concatenate(target, axis=0)[:,None]
+    predictions= stitch_predictions(predictions, dset)
+    target = stitch_predictions(target, dset)
+    pixel_count = get_trimmed_pixel_count(predictions)
+    return predictions[:,:-pixel_count, :-pixel_count].copy(), target[:,:-pixel_count, :-pixel_count].copy()
 
 if __name__ == "__main__":
     main()

@@ -28,7 +28,7 @@ def create_dataloader(dataset, dataset_opt, opt=None, sampler=None):
             pin_memory=False,
         )
     else:
-        batch_size = dataset_opt["batch_size"]
+        batch_size = 1 # This is because get_current_visuals() returns for just one image.
         return torch.utils.data.DataLoader(
             dataset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=(phase=="val")
         )

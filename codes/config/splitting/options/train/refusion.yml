@@ -27,6 +27,7 @@ datasets:
     mode: LQGT_splitting
     fpath: /group/jug/ashesh/data/microscopy/OptiMEM100x014.tif
     downscale_factor: 6
+
     use_shuffle: true
     n_workers: 4  # per GPU
     batch_size: 16

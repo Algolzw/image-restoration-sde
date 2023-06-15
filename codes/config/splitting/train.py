@@ -17,6 +17,7 @@ import torch.multiprocessing as mp
 
 import options as option
 from models import create_model
+from core.psnr import RangeInvariantPsnr
 
 sys.path.insert(0, "../../")
 import utils as util
@@ -289,12 +290,13 @@ def main():
                     model.test(sde)
                     visuals = model.get_current_visuals()
 
-                    output = visuals["Output"].squeeze().cpu().detach().numpy()
-                    gt_img = visuals["GT"].squeeze().cpu().detach().numpy()
+                    output = visuals["Output"]#.squeeze().cpu().detach().numpy()
+                    gt_img = visuals["GT"]#.squeeze().cpu().detach().numpy()
 
                     # calculate PSNR
-                    avg_psnr += util.calculate_psnr(output, gt_img)
-                    idx += 1
+                    import pdb;pdb.set_trace()
+                    avg_psnr += torch.sum(RangeInvariantPsnr(gt_img, output))
+                    idx += len(LQ)
 
                 avg_psnr = avg_psnr / idx
 

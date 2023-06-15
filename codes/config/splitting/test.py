@@ -11,10 +11,11 @@ import torch
 from IPython import embed
 import lpips
 
+sys.path.insert(0, "../../")
 import options as option
 from models import create_model
+from core.psnr import RangeInvariantPsnr
 
-sys.path.insert(0, "../../")
 import utils as util
 from data import create_dataloader, create_dataset
 from data.util import bgr2ycbcr
@@ -142,7 +143,7 @@ for test_loader in test_loaders:
                     crop_border:-crop_border, crop_border:-crop_border
                 ]
 
-            psnr = util.calculate_psnr(cropped_sr_img * 255, cropped_gt_img * 255)
+            psnr = RangeInvariantPsnr(cropped_gt_img, cropped_sr_img)
             ssim = util.calculate_ssim(cropped_sr_img * 255, cropped_gt_img * 255)
             lp_score = lpips_fn(
                 GT.to(device) * 2 - 1, SR_img.to(device) * 2 - 1).squeeze().item()
@@ -166,7 +167,7 @@ for test_loader in test_loaders:
                             crop_border:-crop_border, crop_border:-crop_border
                         ]
                     psnr_y = util.calculate_psnr(
-                        cropped_sr_img_y * 255, cropped_gt_img_y * 255
+                        cropped_gt_img_y, cropped_sr_img_y
                     )
                     ssim_y = util.calculate_ssim(
                         cropped_sr_img_y * 255, cropped_gt_img_y * 255

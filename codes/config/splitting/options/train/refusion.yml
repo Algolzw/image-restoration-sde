@@ -63,7 +63,7 @@ datasets:
 
     use_shuffle: false
     n_workers: 4  # per GPU
-    batch_size: 4
+    batch_size: 16
     GT_size: 128
     LR_size: 128
     # use_flip: true
@@ -99,7 +99,7 @@ network_G:
   setting:
     width: 64
     enc_blk_nums: [1, 1, 1, 28]
-    middle_blk_num: 1
+    middle_blk_num: 3
     dec_blk_nums: [1, 1, 1, 1]
 
 #### path
@@ -127,7 +127,7 @@ train:
   weight: 1.0
 
   manual_seed: 0
-  val_freq: !!float 50
+  val_freq: !!float 500
 
 #### logger
 logger:

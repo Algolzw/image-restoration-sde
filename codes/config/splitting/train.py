@@ -359,6 +359,7 @@ def get_dset_prediction(model, sde, dset, dloader):
     idx = 0
     predictions = []
     target = []
+    patchwise_psnr = []
     for val_data in tqdm(dloader):
 
         LQ, GT = val_data["LQ"], val_data["GT"]
@@ -371,6 +372,7 @@ def get_dset_prediction(model, sde, dset, dloader):
 
         output = visuals["Output"]#.squeeze().cpu().detach().numpy()
         gt_img = visuals["GT"]#.squeeze().cpu().detach().numpy()
+        patchwise_psnr.append(RangeInvariantPsnr(gt_img, output).mean().item())
 
         # store for tiled prediction
         predictions.append(output.cpu().numpy())

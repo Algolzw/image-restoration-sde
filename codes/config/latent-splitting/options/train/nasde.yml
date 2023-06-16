@@ -7,7 +7,7 @@ gpu_ids: [0]
 
 sde:
   max_sigma: 50
-  T: 10
+  T: 100
   sample_T: 100
   schedule: cosine # linear, cosine
   eps: 0.005

@@ -299,6 +299,13 @@ def main():
                 if avg_psnr > best_psnr:
                     best_psnr = avg_psnr
                     best_iter = current_step
+                    print("Saving models and training states.", current_step)
+                    model.save('best')
+                    model.save_training_state(epoch, current_step, filename='best')
+
+                # log
+                wandb.log({"val_psnr":avg_psnr})
+                wandb.log({'step':current_step})
 
                 # log
                 # logger.info("# Validation # PSNR: {:.6f}, Best PSNR: {:.6f}| Iter: {}".format(avg_psnr, best_psnr, best_iter))

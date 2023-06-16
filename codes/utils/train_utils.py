@@ -1,6 +1,7 @@
 import imageio
 import os
 import wandb
+import numpy as np
 
 def get_trimmed_pixel_count(pred):
     """

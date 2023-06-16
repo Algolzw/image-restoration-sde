@@ -301,34 +301,33 @@ def main():
                     best_iter = current_step
 
                 # log
-                logger.info("# Validation # PSNR: {:.6f}, Best PSNR: {:.6f}| Iter: {}".format(avg_psnr, best_psnr, best_iter))
-                logger_val = logging.getLogger("val")  # validation logger
-                logger_val.info(
-                    "<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
-                        epoch, current_step, avg_psnr
-                    )
-                )
+                # logger.info("# Validation # PSNR: {:.6f}, Best PSNR: {:.6f}| Iter: {}".format(avg_psnr, best_psnr, best_iter))
+                # logger_val = logging.getLogger("val")  # validation logger
+                # logger_val.info(
+                #     "<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
+                #         epoch, current_step, avg_psnr
+                #     )
+                # )
                 print("<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
                         epoch, current_step, avg_psnr
                     ))
                 # tensorboard logger
-                if opt["use_tb_logger"] and "debug" not in opt["name"]:
-                    tb_logger.add_scalar("psnr", avg_psnr, current_step)
+                # if opt["use_tb_logger"] and "debug" not in opt["name"]:
+                #     tb_logger.add_scalar("psnr", avg_psnr, current_step)
 
             if error.value:
                 sys.exit(0)
             #### save models and training states
-            if current_step % opt["logger"]["save_checkpoint_freq"] == 0:
-                if rank <= 0:
-                    logger.info("Saving models and training states.")
-                    model.save(current_step)
-                    model.save_training_state(epoch, current_step)
+            # if current_step % opt["logger"]["save_checkpoint_freq"] == 0:
+            #     if rank <= 0:
+            #         logger.info("Saving models and training states.")
+            #         model.save(current_step)
+            #         model.save_training_state(epoch, current_step)
 
     if rank <= 0:
-        logger.info("Saving the final model.")
+        print("Saving the final model.")
         model.save("latest")
-        logger.info("End of Predictor and Corrector training.")
-    tb_logger.close()
+        print("End of Predictor and Corrector training.")
 
 def get_dset_prediction(model, sde, dset, dloader):
     # avg_psnr = 0.0

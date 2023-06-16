@@ -67,13 +67,12 @@ def parse(opt_path, is_train=True):
         osp.join(__file__, osp.pardir, osp.pardir, osp.pardir, osp.pardir)
     )
     path = osp.abspath(__file__)
-    config_dir = path.split("/")[-2]
     if is_train:
         experiments_root = osp.join(
-            opt["path"]["root"], "experiments", config_dir, opt["name"]
+            opt["path"]["root"], "experiments", opt["name"]
         )
         # set experiment root correctly. Everythiing else will be fine. 
-        experiments_root  = get_workdir(experiments_root,use_max_version=False)[0]
+        experiments_root  = get_workdir(experiments_root,False)[0]
         print('')
         print('Root directory', experiments_root)
         print('')
@@ -89,7 +88,7 @@ def parse(opt_path, is_train=True):
             opt["logger"]["print_freq"] = 1
             opt["logger"]["save_checkpoint_freq"] = 8
     else:  # test
-        results_root = osp.join(opt["path"]["root"], "results", config_dir)
+        results_root = osp.join(opt["path"]["root"], "results")
         opt["path"]["results_root"] = osp.join(results_root, opt["name"])
         opt["path"]["log"] = osp.join(results_root, opt["name"])
 

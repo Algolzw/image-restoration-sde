@@ -10,7 +10,6 @@ try:
     sys.path.append("../../")
     from utils import OrderedYaml
     from utils.workdir_utils import get_workdir
-
 except ImportError:
     pass
 
@@ -28,19 +27,11 @@ def parse(opt_path, is_train=True):
 
     opt["is_train"] = is_train
 
-    scale = 1
-    if opt['distortion'] == 'sr':
-        scale = opt['degradation']['scale']
-
-        ##### sr network ####
-        opt["network_G"]["setting"]["upscale"] = scale
-        opt["network_G"]["setting"]["in_nc"] *= scale**2
-
     # datasets
     for phase, dataset in opt["datasets"].items():
         phase = phase.split("_")[0]
         dataset["phase"] = phase
-        dataset["scale"] = scale
+        dataset["scale"] = 1
         
         is_lmdb = False
         if dataset.get("dataroot_GT", None) is not None:
@@ -65,17 +56,17 @@ def parse(opt_path, is_train=True):
     opt["path"]["root"] = osp.abspath(
         osp.join(__file__, osp.pardir, osp.pardir, osp.pardir, osp.pardir)
     )
-    path = osp.abspath(__file__)
-    config_dir = path.split("/")[-2]
+    # path = osp.abspath(__file__)
     if is_train:
         experiments_root = osp.join(
-            opt["path"]["root"], "experiments", config_dir, opt["name"]
+            opt["path"]["root"], "experiments", opt["name"]
         )
-        # set experiment root correctly. Everythiing else will be fine. 
+
         experiments_root  = get_workdir(experiments_root,False)[0]
         print('')
         print('Root directory', experiments_root)
         print('')
+
         opt["path"]["experiments_root"] = experiments_root
         opt["path"]["models"] = osp.join(experiments_root, "models")
         opt["path"]["training_state"] = osp.join(experiments_root, "training_state")
@@ -88,7 +79,7 @@ def parse(opt_path, is_train=True):
             opt["logger"]["print_freq"] = 1
             opt["logger"]["save_checkpoint_freq"] = 8
     else:  # test
-        results_root = osp.join(opt["path"]["root"], "results", config_dir)
+        results_root = osp.join(opt["path"]["root"], "results",  opt["name"])
         opt["path"]["results_root"] = osp.join(results_root, opt["name"])
         opt["path"]["log"] = osp.join(results_root, opt["name"])
 

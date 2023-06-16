@@ -41,7 +41,7 @@ def init_dist(backend="nccl", **kwargs):
     )  # Initializes the default distributed process group
 
 
-def main():
+def get_opt_dict():
     #### setup options of three networks
     parser = argparse.ArgumentParser()
     parser.add_argument("-opt", type=str, help="Path to option YMAL file.")
@@ -54,33 +54,14 @@ def main():
 
     # convert to NoneDict, which returns None for missing keys
     opt = option.dict_to_nonedict(opt)
+    assert args.launcher == "none", "Look at the code for distributed"
+    opt["dist"] = False
+    opt["dist"] = False
+    rank = -1
+    print("Disabled distributed training.")
+    return opt, rank
 
-    # choose small opt for SFTMD test, fill path of pre-trained model_F
-    #### set random seed
-    seed = opt["train"]["manual_seed"]
-
-    #### distributed training settings
-    if args.launcher == "none":  # disabled distributed training
-        opt["dist"] = False
-        opt["dist"] = False
-        rank = -1
-        print("Disabled distributed training.")
-    else:
-        opt["dist"] = True
-        opt["dist"] = True
-        init_dist()
-        world_size = (
-            torch.distributed.get_world_size()
-        )  # Returns the number of processes in the current process group
-        rank = torch.distributed.get_rank()  # Returns the rank of current process group
-        # util.set_random_seed(seed)
-
-    torch.backends.cudnn.benchmark = True
-    # torch.backends.cudnn.deterministic = True
-
-    ###### Predictor&Corrector train ######
-
-    #### loading resume state if exists
+def get_resume_state(opt):
     if opt["path"].get("resume_state", None):
         # distributed resuming: all load into default GPU
         device_id = torch.cuda.current_device()
@@ -91,8 +72,9 @@ def main():
         option.check_resume(opt, resume_state["iter"])  # check resume options
     else:
         resume_state = None
+    return resume_state
 
-    #### mkdir and loggers
+def init_directories_logging(opt,rank, resume_state):
     if rank <= 0:  # normal training (rank -1) OR distributed training (rank 0-7)
         if resume_state is None:
             # Predictor path
@@ -159,16 +141,14 @@ def main():
         # )
         # logger = logging.getLogger("base")
 
-
-    #### create train and val dataloader
-    dataset_ratio = 200  # enlarge the size of each epoch
+def get_dataloaders(opt, rank, dataset_ratio):
     for phase in ['train', 'val']:
         dataset_opt = opt["datasets"][phase]
         if phase == "train":
             train_set = create_dataset(dataset_opt)
             train_size = int(math.ceil(len(train_set) / dataset_opt["batch_size"]))
-            total_iters = int(opt["train"]["niter"])
-            total_epochs = int(math.ceil(total_iters / train_size))
+            # total_iters = int(opt["train"]["niter"])
+            # total_epochs = int(math.ceil(total_iters / train_size))
             if opt["dist"]:
                 train_sampler = DistIterSampler(
                     train_set, world_size, rank, dataset_ratio
@@ -179,17 +159,6 @@ def main():
             else:
                 train_sampler = None
             train_loader = create_dataloader(train_set, dataset_opt, opt, train_sampler)
-            if rank <= 0:
-                print(
-                    "Number of train images: {:,d}, iters: {:,d}".format(
-                        len(train_set), train_size
-                    )
-                )
-                print(
-                    "Total epochs needed: {:d} for iters {:,d}".format(
-                        total_epochs, total_iters
-                    )
-                )
         elif phase == "val":
             max_val = train_set.compute_max_val()
             dataset_opt['max_val'] = max_val
@@ -208,6 +177,116 @@ def main():
     mean_, std_ = train_set.compute_mean_std()
     train_set.set_mean_std(mean_, std_)
     val_set.set_mean_std(mean_, std_)
+    
+    return {'dataset':{'val':val_set,'train':train_set}, 'loader':{'val':val_loader,'train':train_loader}}
+
+def get_total_epochs_iters(train_set, opt):
+    dataset_opt = opt["datasets"]['train']
+    train_size = int(math.ceil(len(train_set) / dataset_opt["batch_size"]))
+    total_iters = int(opt["train"]["niter"])
+    total_epochs = int(math.ceil(total_iters / train_size))
+    print(
+        "Number of train images: {:,d}, iters: {:,d}".format(
+            len(train_set), train_size
+        )
+    )
+    print(
+        "Total epochs needed: {:d} for iters {:,d}".format(
+            total_epochs, total_iters
+        )
+    )
+
+    return total_epochs, total_iters
+
+def publish_model_logs(model, opt, rank, epoch, current_step):
+    logs = model.get_current_log()
+    message = "<epoch:{:3d}, iter:{:8,d}, lr:{:.3e}> ".format(
+        epoch, current_step, model.get_current_learning_rate()
+    )
+    for k, v in logs.items():
+        message += "{:s}: {:.4e} ".format(k, v)
+        # tensorboard logger
+        if opt["use_tb_logger"] and "debug" not in opt["name"]:
+            if rank <= 0:
+                wandb.log({k: v,'step':current_step})#, current_step)
+    if rank <= 0:
+        print(message)
+
+def evaluate_validation(model, sde, val_set, val_loader, opt, current_step, epoch, best_psnr):
+    prediction, target = get_dset_prediction(model, sde, val_set, val_loader)
+    assert prediction.shape[-1] == target.shape[-1]
+    assert prediction.shape[-1] == 1
+
+    prediction = prediction[...,0]
+    target = target[...,0]
+    avg_psnr = RangeInvariantPsnr(target, prediction)
+    avg_psnr = torch.mean(avg_psnr).item()
+    
+    save_imgs(val_set.unnormalize_img(prediction[:,None])[:,0], 
+                val_set.unnormalize_img(target[:,None])[:,0],
+                current_step, 
+                opt["path"]["val_images"])
+    
+    if avg_psnr > best_psnr:
+        best_psnr = avg_psnr
+        print("Saving models and training states.", current_step)
+        model.save('best')
+        model.save_training_state(epoch, current_step, filename='best')
+
+
+    # log
+    wandb.log({"val_psnr":avg_psnr})
+    wandb.log({'step':current_step})
+
+    # print("# Validation # PSNR: {:.6f}, Best PSNR: {:.6f}| Iter: {}".format(avg_psnr, best_psnr, best_iter))
+    # logger_val = logging.getLogger("val")  # validation logger
+    # logger_val.info(
+    #     "<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
+    #         epoch, current_step, avg_psnr
+    #     )
+    # )
+    print("<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
+            epoch, current_step, avg_psnr
+        ))
+    # # tensorboard logger
+    # if opt["use_tb_logger"] and "debug" not in opt["name"]:
+    #     tb_logger.add_scalar("psnr", avg_psnr, current_step)
+    return best_psnr
+
+def training_step(model, sde, train_data, opt, current_step):
+    LQ, GT = train_data["LQ"], train_data["GT"]
+    timesteps, states = sde.generate_random_states(x0=GT, mu=LQ)
+
+    model.feed_data(states, LQ, GT) # xt, mu, x0
+    model.optimize_parameters(current_step, timesteps, sde)
+    model.update_learning_rate(
+        current_step, warmup_iter=opt["train"]["warmup_iter"]
+    )
+
+def main():
+    opt, rank = get_opt_dict()
+    # choose small opt for SFTMD test, fill path of pre-trained model_F
+    torch.backends.cudnn.benchmark = True
+    # torch.backends.cudnn.deterministic = True
+
+
+    ###### Predictor&Corrector train ######
+
+    #### loading resume state if exists
+    resume_state = get_resume_state(opt)
+
+    #### mkdir and loggers
+    init_directories_logging(opt,rank, resume_state)
+
+
+    #### create train and val dataloader
+    dataset_ratio = 200  # enlarge the size of each epoch
+    data_dict = get_dataloaders(opt, rank, dataset_ratio)
+    val_set = data_dict['dataset']['val']
+    train_set = data_dict['dataset']['train']
+    val_loader = data_dict['loader']['val']
+    train_loader = data_dict['loader']['train']
+    total_epochs, total_iters = get_total_epochs_iters(train_set, opt)
 
     #### create model
     model = create_model(opt) 
@@ -251,84 +330,22 @@ def main():
             if current_step > total_iters:
                 break
 
-            LQ, GT = train_data["LQ"], train_data["GT"]
-            timesteps, states = sde.generate_random_states(x0=GT, mu=LQ)
-
-            model.feed_data(states, LQ, GT) # xt, mu, x0
-            model.optimize_parameters(current_step, timesteps, sde)
-            model.update_learning_rate(
-                current_step, warmup_iter=opt["train"]["warmup_iter"]
-            )
+            training_step(model, sde, train_data, opt, current_step)
 
             if current_step % opt["logger"]["print_freq"] == 0:
-                logs = model.get_current_log()
-                message = "<epoch:{:3d}, iter:{:8,d}, lr:{:.3e}> ".format(
-                    epoch, current_step, model.get_current_learning_rate()
-                )
-                for k, v in logs.items():
-                    message += "{:s}: {:.4e} ".format(k, v)
-                    # tensorboard logger
-                    if opt["use_tb_logger"] and "debug" not in opt["name"]:
-                        if rank <= 0:
-                            wandb.log({k: v,'step':current_step})#, current_step)
-                if rank <= 0:
-                    print(message)
+                publish_model_logs(model, opt, rank, epoch, current_step)
 
             # validation, to produce ker_map_list(fake)
             if current_step % opt["train"]["val_freq"] == 0 and rank <= 0:
-                prediction, target = get_dset_prediction(model, sde, val_set, val_loader)
-                assert prediction.shape[-1] == target.shape[-1]
-                assert prediction.shape[-1] == 1
-
-                prediction = prediction[...,0]
-                target = target[...,0]
-                avg_psnr = RangeInvariantPsnr(target, prediction)
-                avg_psnr = torch.mean(avg_psnr).item()
-                
-                save_imgs(val_set.unnormalize_img(prediction[:,None])[:,0], 
-                          val_set.unnormalize_img(target[:,None])[:,0],
-                          current_step, 
-                          opt["path"]["val_images"])
-                
-                if avg_psnr > best_psnr:
-                    best_psnr = avg_psnr
-                    best_iter = current_step
-                    print("Saving models and training states.", current_step)
-                    model.save('best')
-                    model.save_training_state(epoch, current_step, filename='best')
-
-
-                # log
-                wandb.log({"val_psnr":avg_psnr})
-                wandb.log({'step':current_step})
-
-                # print("# Validation # PSNR: {:.6f}, Best PSNR: {:.6f}| Iter: {}".format(avg_psnr, best_psnr, best_iter))
-                # logger_val = logging.getLogger("val")  # validation logger
-                # logger_val.info(
-                #     "<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
-                #         epoch, current_step, avg_psnr
-                #     )
-                # )
-                print("<epoch:{:3d}, iter:{:8,d}, psnr: {:.6f}".format(
-                        epoch, current_step, avg_psnr
-                    ))
-                # # tensorboard logger
-                # if opt["use_tb_logger"] and "debug" not in opt["name"]:
-                #     tb_logger.add_scalar("psnr", avg_psnr, current_step)
+                best_psnr = evaluate_validation(model, sde, val_set, val_loader, opt, current_step, epoch, best_psnr)
 
             if error.value:
                 sys.exit(0)
-            #### save models and training states
-            # if current_step % opt["logger"]["save_checkpoint_freq"] == 0:
-            #     if rank <= 0:
-            #         print("Saving models and training states.")
-            #         model.save(current_step)
-            #         model.save_training_state(epoch, current_step)
 
         if rank <= 0:
-            print("Saving the final model.")
+            # print("Saving the final model.")
             model.save("latest")
-            print("End of Predictor and Corrector training.")
+            # print("End of Predictor and Corrector training.")
 
 
 

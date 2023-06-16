@@ -109,7 +109,7 @@ path:
   pretrain_model_G: ~
   strict_load: true
   resume_state: ~
-  pretrain_model_L: ~
+  pretrain_model_L: '/home/ashesh.ashesh/code/image-restoration-sde/experiments/latent_unet/2306/4/models/best_G.pth'
 
 #### training settings: learning rate scheme, loss
 train:

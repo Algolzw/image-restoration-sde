@@ -5,7 +5,7 @@ import math
 
 import functools
 
-from .module_util import (
+from common.module_util import (
     SinusoidalPosEmb,
     RandomOrLearnedSinusoidalPosEmb,
     NonLinearity,

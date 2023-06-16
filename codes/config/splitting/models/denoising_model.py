@@ -17,7 +17,7 @@ from models.optimizer import Lion
 
 from models.modules.loss import MatchingLoss
 
-from .base_model import BaseModel
+from common.base_model import BaseModel
 
 logger = logging.getLogger("base")
 

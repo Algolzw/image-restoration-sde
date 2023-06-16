@@ -6,5 +6,6 @@ __pycache__/
 **/result
 **/sde_state/
 log
+image/
 .vscode/**
 experiments/

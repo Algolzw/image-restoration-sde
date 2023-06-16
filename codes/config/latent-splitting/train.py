@@ -19,7 +19,7 @@ import torch.multiprocessing as mp
 import options as option
 from models import create_model
 from core.psnr import RangeInvariantPsnr
-
+from utils.stitch_prediction import stitch_predictions
 
 sys.path.insert(0, "../../")
 import utils as util

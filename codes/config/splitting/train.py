@@ -326,10 +326,10 @@ def main():
             #         model.save(current_step)
             #         model.save_training_state(epoch, current_step)
 
-    if rank <= 0:
-        print("Saving the final model.")
-        model.save("latest")
-        print("End of Predictor and Corrector training.")
+        if rank <= 0:
+            print("Saving the final model.")
+            model.save("latest")
+            print("End of Predictor and Corrector training.")
 
 def save_imgs(prediction, target, current_step, direc, save_to_wandb=False):
     if not os.path.exists(direc):

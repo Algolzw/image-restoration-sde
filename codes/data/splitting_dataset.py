@@ -214,7 +214,7 @@ class SplittingDataset:
         msg += f' Train:{int(self._is_train)} N:{self.N} NumPatchPerN:{self._repeat_factor}'
         msg += f' Ch1w:{self.ch1_weight}'
         if self._downscale_factor:
-            msg += ' Dfac:{self._downscale_factor}'
+            msg += f' Dfac:{self._downscale_factor}'
             
         msg += f' NormInp:{self._normalized_input}'
         msg += f' SingleNorm:{self._use_one_mu_std}'

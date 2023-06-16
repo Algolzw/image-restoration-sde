@@ -7,6 +7,7 @@ import sys
 import copy
 import socket
 
+from tqdm import tqdm
 import wandb
 import cv2
 import numpy as np

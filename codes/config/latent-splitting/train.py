@@ -5,7 +5,9 @@ import os
 import random
 import sys
 import copy
+import socket
 
+import wandb
 import cv2
 import numpy as np
 import torch
@@ -15,6 +17,8 @@ import torch.multiprocessing as mp
 
 import options as option
 from models import create_model
+from core.psnr import RangeInvariantPsnr
+
 
 sys.path.insert(0, "../../")
 import utils as util
@@ -22,6 +26,7 @@ from data import create_dataloader, create_dataset
 from data.data_sampler import DistIterSampler
 
 from data.util import bgr2ycbcr
+from utils.train_utils import get_trimmed_pixel_count, save_imgs
 
 # torch.autograd.set_detect_anomaly(True)
 
@@ -95,9 +100,9 @@ def main():
     if rank <= 0:  # normal training (rank -1) OR distributed training (rank 0-7)
         if resume_state is None:
             # Predictor path
-            util.mkdir_and_rename(
-                opt["path"]["experiments_root"]
-            )  # rename experiment folder if exists
+            # util.mkdir_and_rename(
+            #     opt["path"]["experiments_root"]
+            # )  # rename experiment folder if exists
             util.mkdirs(
                 (
                     path
@@ -107,51 +112,60 @@ def main():
                     and "resume" not in key
                 )
             )
-            os.system("rm ./log")
-            os.symlink(os.path.join(opt["path"]["experiments_root"], ".."), "./log")
+            # os.system("rm ./log")
+            # os.symlink(os.path.join(opt["path"]["experiments_root"], ".."), "./log")
 
         # config loggers. Before it, the log will not work
-        util.setup_logger(
-            "base",
-            opt["path"]["log"],
-            "train_" + opt["name"],
-            level=logging.INFO,
-            screen=False,
-            tofile=True,
-        )
-        util.setup_logger(
-            "val",
-            opt["path"]["log"],
-            "val_" + opt["name"],
-            level=logging.INFO,
-            screen=False,
-            tofile=True,
-        )
-        logger = logging.getLogger("base")
-        logger.info(option.dict2str(opt))
+        # util.setup_logger(
+        #     "base",
+        #     opt["path"]["log"],
+        #     "train_" + opt["name"],
+        #     level=logging.INFO,
+        #     screen=False,
+        #     tofile=True,
+        # )
+        # util.setup_logger(
+        #     "val",
+        #     opt["path"]["log"],
+        #     "val_" + opt["name"],
+        #     level=logging.INFO,
+        #     screen=False,
+        #     tofile=True,
+        # )
+        # logger = logging.getLogger("base")
+        # logger.info(option.dict2str(opt))
+        prefix= os.path.dirname(os.path.dirname(opt["path"]["experiments_root"]))
+        expname = opt["path"]["experiments_root"][len(prefix)+1:]
+        hostname = socket.gethostname()
+        wandb.init(name=os.path.join(hostname,'latent', expname),
+                         dir=opt["path"]["log"],
+                         project="DiffusionSplitting",
+                         config=opt)
         # tensorboard logger
-        if opt["use_tb_logger"] and "debug" not in opt["name"]:
-            version = float(torch.__version__[0:3])
-            if version >= 1.1:  # PyTorch 1.1
-                from torch.utils.tensorboard import SummaryWriter
-            else:
-                logger.info(
-                    "You are using PyTorch {}. Tensorboard will use [tensorboardX]".format(
-                        version
-                    )
-                )
-                from tensorboardX import SummaryWriter
-            tb_logger = SummaryWriter(log_dir="log/{}/tb_logger/".format(opt["name"]))
+        # if opt["use_tb_logger"] and "debug" not in opt["name"]:
+        #     version = float(torch.__version__[0:3])
+        #     if version >= 1.1:  # PyTorch 1.1
+        #         from torch.utils.tensorboard import SummaryWriter
+        #     else:
+        #         logger.info(
+        #             "You are using PyTorch {}. Tensorboard will use [tensorboardX]".format(
+        #                 version
+        #             )
+        #         )
+        #         from tensorboardX import SummaryWriter
+        #     tb_logger = SummaryWriter(log_dir="log/{}/tb_logger/".format(opt["name"]))
     else:
-        util.setup_logger(
-            "base", opt["path"]["log"], "train", level=logging.INFO, screen=False
-        )
-        logger = logging.getLogger("base")
+        raise NotImplementedError('handle this case')
+        # util.setup_logger(
+        #     "base", opt["path"]["log"], "train", level=logging.INFO, screen=False
+        # )
+        # logger = logging.getLogger("base")
 
 
     #### create train and val dataloader
     dataset_ratio = 1000  # enlarge the size of each epoch
-    for phase, dataset_opt in opt["datasets"].items():
+    for phase in ['train', 'val']:
+        dataset_opt = opt["datasets"][phase]
         if phase == "train":
             train_set = create_dataset(dataset_opt)
             train_size = int(math.ceil(len(train_set) / dataset_opt["batch_size"]))
@@ -168,21 +182,23 @@ def main():
                 train_sampler = None
             train_loader = create_dataloader(train_set, dataset_opt, opt, train_sampler)
             if rank <= 0:
-                logger.info(
+                print(
                     "Number of train images: {:,d}, iters: {:,d}".format(
                         len(train_set), train_size
                     )
                 )
-                logger.info(
+                print(
                     "Total epochs needed: {:d} for iters {:,d}".format(
                         total_epochs, total_iters
                     )
                 )
         elif phase == "val":
+            max_val = train_set.compute_max_val()
+            dataset_opt['max_val'] = max_val
             val_set = create_dataset(dataset_opt)
             val_loader = create_dataloader(val_set, dataset_opt, opt, None)
             if rank <= 0:
-                logger.info(
+                print(
                     "Number of val images in [{:s}]: {:d}".format(
                         dataset_opt["name"], len(val_set)
                     )
@@ -191,6 +207,9 @@ def main():
             raise NotImplementedError("Phase [{:s}] is not recognized.".format(phase))
     assert train_loader is not None
     assert val_loader is not None
+    mean_, std_ = train_set.compute_mean_std()
+    train_set.set_mean_std(mean_, std_)
+    val_set.set_mean_std(mean_, std_)
 
     #### create model
     model = create_model(opt) 
@@ -198,7 +217,7 @@ def main():
 
     #### resume training
     if resume_state:
-        logger.info(
+        print(
             "Resuming training from epoch: {}, iter: {}.".format(
                 resume_state["epoch"], resume_state["iter"]
             )
@@ -214,10 +233,10 @@ def main():
     sde = util.IRSDE(max_sigma=opt["sde"]["max_sigma"], T=opt["sde"]["T"], schedule=opt["sde"]["schedule"], eps=opt["sde"]["eps"], device=device)
     sde.set_model(model.model)
 
-    scale = opt['degradation']['scale']
+    # scale = opt['degradation']['scale']
 
     #### training
-    logger.info(
+    print(
         "Start training from epoch: {:d}, iter: {:d}".format(start_epoch, current_step)
     )
 
@@ -256,36 +275,25 @@ def main():
                     # tensorboard logger
                     if opt["use_tb_logger"] and "debug" not in opt["name"]:
                         if rank <= 0:
-                            tb_logger.add_scalar(k, v, current_step)
+                            wandb.log({k: v,'step':current_step})
                 if rank <= 0:
-                    logger.info(message)
+                    print(message)
 
             # validation, to produce ker_map_list(fake)
             if current_step % opt["train"]["val_freq"] == 0 and rank <= 0:
-                avg_psnr = 0.0
-                idx = 0
-                for _, val_data in enumerate(val_loader):
-                    LQ, GT = val_data["LQ"], val_data["GT"]
-                    with torch.no_grad():
-                        latent_LQ, hidden = model.encode(LQ.to(device))
-                        noisy_state = sde.noise_state(latent_LQ)
+                prediction, target = get_dset_prediction(model, sde, val_set, val_loader)
+                assert prediction.shape[-1] == target.shape[-1]
+                assert prediction.shape[-1] == 1
 
-                    # valid Predictor
-                    model.feed_data(noisy_state, latent_LQ, GT)
-                    model.test(sde, hidden)
-                    visuals = model.get_current_visuals()
-
-                    output = util.tensor2img(visuals["Output"].squeeze())  # uint8
-                    gt_img = util.tensor2img(visuals["GT"].squeeze())  # uint8
-
-                    # calculate PSNR
-                    avg_psnr += util.calculate_psnr(output, gt_img)
-                    idx += 1
-
-                    # break
-                    torch.cuda.empty_cache()
-
-                avg_psnr = avg_psnr / idx
+                prediction = prediction[...,0]
+                target = target[...,0]
+                avg_psnr = RangeInvariantPsnr(target, prediction)
+                avg_psnr = torch.mean(avg_psnr).item()
+                
+                save_imgs(val_set.unnormalize_img(prediction[:,None])[:,0], 
+                          val_set.unnormalize_img(target[:,None])[:,0],
+                          current_step, 
+                          opt["path"]["val_images"])
 
                 if avg_psnr > best_psnr:
                     best_psnr = avg_psnr
@@ -320,6 +328,66 @@ def main():
         model.save("latest")
         logger.info("End of Predictor and Corrector training.")
     tb_logger.close()
+
+def get_dset_prediction(model, sde, dset, dloader):
+    # avg_psnr = 0.0
+    # idx = 0
+    # for _, val_data in enumerate(val_loader):
+    #     LQ, GT = val_data["LQ"], val_data["GT"]
+    #     with torch.no_grad():
+    #         latent_LQ, hidden = model.encode(LQ.to(device))
+    #         noisy_state = sde.noise_state(latent_LQ)
+
+    #     # valid Predictor
+    #     model.feed_data(noisy_state, latent_LQ, GT)
+    #     model.test(sde, hidden)
+    #     visuals = model.get_current_visuals()
+
+    #     output = util.tensor2img(visuals["Output"].squeeze())  # uint8
+    #     gt_img = util.tensor2img(visuals["GT"].squeeze())  # uint8
+
+    #     # calculate PSNR
+    #     avg_psnr += util.calculate_psnr(output, gt_img)
+    #     idx += 1
+
+    #     # break
+    #     torch.cuda.empty_cache()
+
+    # avg_psnr = avg_psnr / idx
+
+    idx = 0
+    predictions = []
+    target = []
+    patchwise_psnr = []
+    for val_data in tqdm(dloader):
+
+        LQ, GT = val_data["LQ"], val_data["GT"]
+        with torch.no_grad():
+            latent_LQ, hidden = model.encode(LQ.cuda())
+            noisy_state = sde.noise_state(latent_LQ)
+
+
+        # valid Predictor
+        model.feed_data(noisy_state, latent_LQ, GT)
+        model.test(sde, hidden)
+        visuals = model.get_current_visuals()
+
+        output = visuals["Output"]#.squeeze().cpu().detach().numpy()
+        gt_img = visuals["GT"]#.squeeze().cpu().detach().numpy()
+        patchwise_psnr.append(RangeInvariantPsnr(gt_img, output).mean().item())
+
+        # store for tiled prediction
+        predictions.append(output.cpu().numpy())
+        target.append(gt_img.cpu().numpy())
+        idx += len(LQ)
+        torch.cuda.empty_cache()
+
+    predictions = np.concatenate(predictions, axis=0)[:,None]
+    target = np.concatenate(target, axis=0)[:,None]
+    predictions= stitch_predictions(predictions, dset)
+    target = stitch_predictions(target, dset)
+    pixel_count = get_trimmed_pixel_count(predictions)
+    return predictions[:,:-pixel_count, :-pixel_count].copy(), target[:,:-pixel_count, :-pixel_count].copy()
 
 
 if __name__ == "__main__":

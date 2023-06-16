@@ -1,0 +1,50 @@
+name: latent-reffusion-dehazing
+suffix: ~  # add suffix to saved images
+model: latent_denoising
+distortion: dehazing
+gpu_ids: [0]
+
+sde:
+  max_sigma: 50
+  T: 100
+  sample_T: 100
+  schedule: cosine # linear, cosine
+  eps: 0.005
+  
+degradation:
+  # for denoising
+  sigma: 25
+  noise_type: G # Gaussian noise: G
+
+  # for super-resolution
+  scale: 4
+
+datasets:
+  test1:
+    name: test
+    mode: LQ
+    dataroot_LQ: /home/ziwlu/datasets/ntire2023/dehazing/test
+
+#### network structures
+network_G:
+  which_model: ConditionalNAFNet
+  setting:
+    img_channel: 8
+    width: 64
+    enc_blk_nums: [1, 1, 1, 28]
+    middle_blk_num: 1
+    dec_blk_nums: [1, 1, 1, 1]
+
+network_L:
+  which_model: UNet
+  setting:
+    in_ch: 3
+    out_ch: 3
+    ch: 8
+    ch_mult: [4, 8, 8, 16]
+    embed_dim: 8
+
+#### path
+path:
+  pretrain_model_G: pretrained_models/latent-reffusion-dehazing.pth
+  pretrain_model_L: pretrained_models/latent-dehazing.pth

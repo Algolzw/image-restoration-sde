@@ -1,7 +1,7 @@
 name: refusion
 suffix: ~  # add suffix to saved images
 model: denoising
-distortion: derain
+distortion: sr
 gpu_ids: [0]
 
 sde:

@@ -1,5 +1,5 @@
 
-## Image Restoration SDE <br><sub>Official PyTorch Implementations of [[IR-SDE]](https://arxiv.org/abs/2301.11699)(ICML 2023) and [[Refusion]](https://arxiv.org/abs/2304.08291)(CVPRW 2023). </sub>
+## Image Restoration SDE <br><sub>Official PyTorch Implementations of [[IR-SDE]](https://proceedings.mlr.press/v202/luo23b.html)(ICML 2023) and [[Refusion]](https://arxiv.org/abs/2304.08291)(CVPRW 2023). </sub>
 
 [Ziwei Luo](https://algolzw.github.io/), 
 [Fredrik K. Gustafsson](https://www.fregu856.com/), 
@@ -8,7 +8,7 @@
 [Thomas B. Schön](https://user.it.uu.se/~thosc112/index.html)</br>
 Department of Information Technology, Uppsala University</br>
 
-**[Image Restoration with Mean-Reverting Stochastic Differential Equations](https://arxiv.org/abs/2301.11699)** [[Weights and Results](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link)]</br>
+**[Image Restoration with Mean-Reverting Stochastic Differential Equations](https://proceedings.mlr.press/v202/luo23b.html)** [[Weights and Results](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link)]</br>
 ![IR-SDE](figs/overview.png)
 
 **[Refusion: Enabling Large-Size Realistic Image Restoration with Latent-Space Diffusion Models](https://arxiv.org/abs/2304.08291)** [[Weights and Results](https://drive.google.com/drive/folders/1Xy7z9CH0weck775ixePnjD6fZIjAbre7?usp=share_link)]</br>
@@ -18,7 +18,7 @@ Both methods can be used for synthetic and real-world datasets. You can find mor
 
 ### Updates
 [**2023.07.06**] All results and pre-trained models for IR-SDE and Refusion are provided in [link1](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link) and [link2](https://drive.google.com/drive/folders/1T5_UL4BgOIftEEkAzoa-SYX49P7COVa6?usp=share_link), respectively.<br>
-[**2023.04.25**] 🎉🎉🎉 **Our [IR-SDE](https://arxiv.org/abs/2301.11699) paper was accepted by ICML 2023** 🎉🎉🎉<br>
+[**2023.04.25**] 🎉🎉🎉 **Our [IR-SDE](https://proceedings.mlr.press/v202/luo23b.html) paper was accepted by ICML 2023** 🎉🎉🎉<br>
 [**2023.04.23**] We released the codes for various tasks (including *IR-SDE*, *Refusion*, and *Latent-Refusion*).<br>
 [**2023.04.17**] 🎉🎉🎉 Our method **Refusion** is the **Winning Solution** in NTIRE 2023 Image Shadow Removal Challenge [[Paper]](https://arxiv.org/abs/2304.08291).<br>
 <!--[**2023.02.02**] We provide a [Gradio](https://gradio.app/) app file for the case that you want to [test your own images](https://github.com/Algolzw/image-restoration-sde#Gradio).-->

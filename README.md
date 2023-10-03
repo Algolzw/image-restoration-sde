@@ -17,6 +17,7 @@ Department of Information Technology, Uppsala University</br>
 Both methods can be used for synthetic and real-world datasets. You can find more details and results from this **[Project page](https://algolzw.github.io/ir-sde/index.html)**.
 
 ### Updates
+[**2023.10.02**] We present a new *Universal Image Restoration* framework by controlling the vision-language model [[here]](https://github.com/Algolzw/daclip-uir).<br>
 [**2023.07.06**] All results and pre-trained models for IR-SDE and Refusion are provided in [link1](https://drive.google.com/drive/folders/14SvJXvp0HPKFHpGaaHy7h2I2fkRnIXAG?usp=share_link) and [link2](https://drive.google.com/drive/folders/1T5_UL4BgOIftEEkAzoa-SYX49P7COVa6?usp=share_link), respectively.<br>
 [**2023.04.25**] 🎉🎉🎉 **Our [IR-SDE](https://proceedings.mlr.press/v202/luo23b.html) paper was accepted by ICML 2023** 🎉🎉🎉<br>
 [**2023.04.23**] We released the codes for various tasks (including *IR-SDE*, *Refusion*, and *Latent-Refusion*).<br>

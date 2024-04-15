@@ -1,4 +1,4 @@
-name: ir-sde
+name: ir-sde-posterior
 suffix: ~  # add suffix to saved images
 model: denoising
 distortion: derain
@@ -9,6 +9,7 @@ sde:
   T: 100
   schedule: cosine # linear, cosine
   eps: 0.005
+  sampling_mode: posterior
   
 degradation:
   # for denoising
@@ -22,8 +23,8 @@ datasets:
   test1:
     name: Val_Dataset
     mode: LQGT
-    dataroot_GT: datasets/rain/testH/GT
-    dataroot_LQ: datasets/rain/testH/LQ
+    dataroot_GT: datasets/Rain100H/GT
+    dataroot_LQ: datasets/Rain100H/LQ
 
 #### network structures
 network_G:

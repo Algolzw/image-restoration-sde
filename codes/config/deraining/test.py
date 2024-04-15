@@ -69,6 +69,8 @@ device = model.device
 
 sde = util.IRSDE(max_sigma=opt["sde"]["max_sigma"], T=opt["sde"]["T"], schedule=opt["sde"]["schedule"], eps=opt["sde"]["eps"], device=device)
 sde.set_model(model.model)
+sampling_mode = opt["sde"]["sampling_mode"]
+
 lpips_fn = lpips.LPIPS(net='alex').to(device)
 
 scale = opt['degradation']['scale']
@@ -103,7 +105,7 @@ for test_loader in test_loaders:
 
         model.feed_data(noisy_state, LQ, GT)
         tic = time.time()
-        model.test(sde, save_states=True)
+        model.test(sde, mode=sampling_mode, save_states=False)
         toc = time.time()
         test_times.append(toc - tic)
 
